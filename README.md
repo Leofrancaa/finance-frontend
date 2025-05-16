@@ -50,15 +50,7 @@ A URL acima deve apontar para seu backend rodando localmente.
 npm run dev
 ```
 
-<<<<<<< HEAD
 Abra [http://localhost:3000](http://localhost:3000) no navegador para visualizar o projeto.
-=======
-O frontend estará disponível em:
-
-```
-http://localhost:3000
-```
->>>>>>> staging
 
 ---
 
@@ -75,10 +67,6 @@ http://localhost:3000
 
 Este é um projeto pessoal desenvolvido por **Leonardo Franca** com fins de estudo e aprendizado.
 
-<<<<<<< HEAD
 © 2025 Leonardo Franca. Todos os direitos reservados.
-=======
-© 2024 Leonardo Franca. Todos os direitos reservados.
->>>>>>> staging
 
 O uso, cópia ou redistribuição deste código é permitido apenas com autorização prévia do autor.

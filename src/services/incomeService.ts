@@ -1,8 +1,4 @@
 import { Income } from "@/interfaces/Income";
-<<<<<<< HEAD
-import { generateUniqueId } from "@/utils/generateUniqueId";
-=======
->>>>>>> staging
 import { API_BASE_URL } from "@/utils/api";
 import { fetchAuth } from "@/services/apiService"; // 👈 importar fetchAuth
 
@@ -51,12 +47,7 @@ export async function deleteIncomeFromAPI(id: string) {
 // 🔄 Atualiza uma receita no backend
 export async function updateIncomeInAPI(id: string, incomeData: Partial<Income>) {
     // Remove campos que não devem ser enviados ou que são imutáveis pelo cliente diretamente
-<<<<<<< HEAD
-    const { _id, ...dataToUpdate } = incomeData;
-=======
     const { ...dataToUpdate } = incomeData;
->>>>>>> staging
-
     // Garante que o amount seja número, se presente
     if (dataToUpdate.amount !== undefined) {
         dataToUpdate.amount = Number(dataToUpdate.amount);

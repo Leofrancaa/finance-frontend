@@ -13,11 +13,7 @@ interface IncomeDashboardProps {
 export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
   const { selectedYear, selectedMonth } = useDate();
   // Obtém incomes e deleteIncome diretamente do contexto
-<<<<<<< HEAD
-  const { incomes, deleteIncome } = useIncomes(); 
-=======
   const { incomes, deleteIncome } = useIncomes();
->>>>>>> staging
 
   const filtered = incomes.filter((income) => {
     const date = new Date(income.date);
@@ -44,47 +40,30 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
           {filtered.map((income) => (
             <li
               // Usa _id do backend se disponível, senão o id gerado no front
-<<<<<<< HEAD
-              key={income._id ?? income.id ?? income.date} 
-=======
               key={income._id ?? income.date}
->>>>>>> staging
               className="bg-white p-3 rounded-md flex justify-between items-center shadow"
             >
               <div>
                 {new Date(income.date).toLocaleDateString("pt-BR")} —{" "}
                 {/* Capitaliza o tipo */}
-<<<<<<< HEAD
-                {income.type ? income.type[0].toUpperCase() + income.type.slice(1) : 'Tipo não definido'}:{" "}
-                <b>R$ {income.amount.toFixed(2)}</b>
-=======
                 {income.type
                   ? income.type[0].toUpperCase() + income.type.slice(1)
                   : "Tipo não definido"}
                 : <b>R$ {income.amount.toFixed(2)}</b>
->>>>>>> staging
                 {income.note && <span> ({income.note})</span>}
               </div>
               {/* Container para os botões */}
               <div className="flex gap-2">
                 <button
                   // Chama onEdit passando a receita completa
-<<<<<<< HEAD
-                  onClick={() => onEdit(income)} 
-=======
                   onClick={() => onEdit(income)}
->>>>>>> staging
                   className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors duration-200"
                 >
                   Editar
                 </button>
                 <button
                   // Usa _id do backend se disponível para deletar
-<<<<<<< HEAD
-                  onClick={() => deleteIncome(income._id ?? income.id)} 
-=======
                   onClick={() => deleteIncome(income._id)}
->>>>>>> staging
                   className="bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors duration-200"
                 >
                   Remover
@@ -97,7 +76,3 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
     </div>
   );
 };
-<<<<<<< HEAD
-
-=======
->>>>>>> staging
