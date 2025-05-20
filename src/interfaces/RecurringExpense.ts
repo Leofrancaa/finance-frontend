@@ -8,5 +8,5 @@ export interface RecurringExpense {
     paymentMethod: string;
     fixed?: boolean;
     subcategory?: string;
-    creditCardId?: string;
+    creditCardId?: string | null;
 }

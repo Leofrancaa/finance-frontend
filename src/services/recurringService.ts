@@ -23,7 +23,7 @@ export function buildRecurringPayload(
         fixed: true,
         _id: "", // será preenchido pelo backend
         subcategory: data.subcategory,
-        creditCardId: data.creditCardId,
+        creditCardId: data.creditCardId || null,
     };
 }
 
