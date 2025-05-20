@@ -11,13 +11,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  XAxisProps,
 } from "recharts";
 import { MONTHS } from "@/utils/constants";
-import {
-  ValueType,
-  NameType,
-} from "recharts/types/component/DefaultTooltipContent";
+import { ValueType } from "recharts/types/component/DefaultTooltipContent";
 
 interface ChartData {
   month: string;
