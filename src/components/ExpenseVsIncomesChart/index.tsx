@@ -11,12 +11,30 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  XAxisProps,
 } from "recharts";
 import { MONTHS } from "@/utils/constants";
+import {
+  ValueType,
+  NameType,
+} from "recharts/types/component/DefaultTooltipContent";
 
-const CustomizedTick = (props: any) => {
-  const { x, y, payload } = props;
+interface ChartData {
+  month: string;
+  despesas: number;
+  receitas: number;
+}
 
+interface CustomizedTickProps {
+  x?: number;
+  y?: number;
+  payload?: {
+    value: string;
+  };
+}
+
+const CustomizedTick = ({ x = 0, y = 0, payload }: CustomizedTickProps) => {
+  if (!payload) return null;
   return (
     <text
       x={x}
@@ -37,7 +55,7 @@ export default function ExpensesVsIncomesChart() {
   const { incomes } = useIncomes();
   const { selectedYear } = useDate();
 
-  const monthlyData = Array.from({ length: 12 }, (_, month) => {
+  const monthlyData: ChartData[] = Array.from({ length: 12 }, (_, month) => {
     const totalDespesas = expenses
       .filter((e) => {
         const d = new Date(e.date);
@@ -79,7 +97,11 @@ export default function ExpensesVsIncomesChart() {
           </defs>
           <XAxis dataKey="month" tick={<CustomizedTick />} />
           <YAxis />
-          <Tooltip formatter={(value: number) => `R$ ${value.toFixed(2)}`} />
+          <Tooltip
+            formatter={(value: ValueType) =>
+              typeof value === "number" ? `R$ ${value.toFixed(2)}` : value
+            }
+          />
           <Legend />
           <Area
             type="monotone"
