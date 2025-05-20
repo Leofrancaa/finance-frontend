@@ -5,12 +5,12 @@ export interface AddExpenseData {
     day: string;
     amount: string;
     paymentMethod: string;
-    installments?: string;
+    installments?: string | null;
     note?: string;
     fixed?: boolean;
     startDate?: string;
     subcategory?: string;
-    creditCardId?: string;
+    creditCardId?: string | null;
 
 }
 
@@ -21,12 +21,12 @@ export interface Expense {
     amount: number;
     day: number;
     paymentMethod: string;
-    installments?: number;
+    installments?: number | null;
     note?: string;
     fixed?: boolean;
     date: string;
     subcategory?: string;
-    creditCardId?: string;
+    creditCardId?: string | null;
 }
 
 // Dado que vem do backend

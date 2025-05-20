@@ -74,11 +74,22 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
-    }));
+
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [name]:
+          type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
+      };
+
+      // Se o campo alterado for "paymentMethod" e não for cartão de crédito
+      if (name === "paymentMethod" && value !== "cartão de crédito") {
+        updated.creditCardId = "";
+        updated.installments = "";
+      }
+
+      return updated;
+    });
   };
 
   const generateRecurringExpensesUntilYearEnd = (
@@ -98,7 +109,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
         fixed: true,
         day: recurring.day,
         subcategory: recurring.subcategory,
-        creditCardId: recurring.creditCardId,
+        creditCardId: recurring.creditCardId || undefined,
       });
     }
     return expenses;
@@ -134,14 +145,30 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
         selectedMonth
       );
 
+      // Monta campos condicionais
+      const creditCardId =
+        formData.paymentMethod === "cartão de crédito"
+          ? formData.creditCardId || undefined
+          : null;
+
+      const installments =
+        formData.paymentMethod === "cartão de crédito"
+          ? formData.installments
+            ? Number(formData.installments)
+            : null
+          : null;
+
       if (isEditing && expenseToEdit) {
         if (!expenseToEdit._id) throw new Error("ID não encontrado.");
+
         const updatedExpense = await updateExpenseInAPI(expenseToEdit._id, {
           ...expenseData,
           note: formData.note,
           subcategory: formData.subcategory,
-          creditCardId: formData.creditCardId || undefined,
+          creditCardId,
+          installments,
         });
+
         updateExpense(updatedExpense);
         onExpenseUpdated?.();
         alert("Despesa atualizada com sucesso!");
@@ -172,10 +199,12 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
             userId,
             subcategory: formData.subcategory || "",
             note: formData.note || "",
-            creditCardId: formData.creditCardId || undefined,
+            creditCardId,
+            installments,
           };
           const saved = await postExpenseToAPI(payload);
           addExpense(saved);
+          onExpenseUpdated?.(); // fecha o modal após criação
         }
         alert("Despesa adicionada com sucesso!");
       }
@@ -287,7 +316,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           />
           <select
             name="creditCardId"
-            value={formData.creditCardId}
+            value={formData.creditCardId ?? ""}
             onChange={handleChange}
             required
             className="w-full p-2 border rounded"

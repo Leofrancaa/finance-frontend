@@ -4,7 +4,11 @@ import { useCategory, Category } from "@/contexts/CategoryContext";
 import { DEFAULT_CATEGORIES } from "@/utils/constants";
 import { useState, useEffect } from "react";
 
-export default function CategoryManagerForm() {
+export default function CategoryManagerForm({
+  onSaveSuccess,
+}: {
+  onSaveSuccess?: () => void;
+}) {
   const { categories, saveUserCategories, isLoading } = useCategory();
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [currentCategory, setCurrentCategory] = useState<string>("");
@@ -40,7 +44,6 @@ export default function CategoryManagerForm() {
       ]);
     }
 
-    // reset
     setCurrentCategory("");
     setSelectedSubcategories([]);
   };
@@ -54,6 +57,7 @@ export default function CategoryManagerForm() {
   const handleSave = async () => {
     await saveUserCategories(selectedCategories);
     alert("Categorias atualizadas com sucesso!");
+    onSaveSuccess?.(); // ✅ fecha o modal
   };
 
   if (isLoading) return <p>Carregando categorias...</p>;
@@ -83,7 +87,7 @@ export default function CategoryManagerForm() {
           </select>
         </div>
 
-        {/* Subcategorias com checkbox */}
+        {/* Subcategorias */}
         {currentCategory && availableSubcategories.length > 0 && (
           <div className="flex-1">
             <label className="block mb-1 font-medium">Subcategorias</label>
@@ -111,7 +115,7 @@ export default function CategoryManagerForm() {
         </button>
       </div>
 
-      {/* Lista visual das categorias adicionadas */}
+      {/* Lista de categorias selecionadas */}
       <div className="mt-6">
         <h3 className="font-semibold mb-2">Categorias Selecionadas</h3>
         {selectedCategories.length === 0 ? (

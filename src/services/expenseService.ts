@@ -21,8 +21,13 @@ export function transformAddExpenseData(
         fixed: !!data.fixed,
         installments: data.installments ? Number(data.installments) : undefined,
         day: Number(data.day),
+        creditCardId:
+            data.paymentMethod === "cartão de crédito" && data.creditCardId
+                ? data.creditCardId
+                : null, // <- limpa se não for cartão
     };
 }
+
 
 // 🗑️ Deleta uma despesa no backend
 export async function deleteExpenseFromAPI(_id: string) {
@@ -65,7 +70,13 @@ export async function getExpenses(): Promise<ExpenseFromAPI[]> {
 
 // 🔄 Atualiza uma despesa existente
 export async function updateExpenseInAPI(id: string, expenseData: Partial<Expense>) {
-    const { ...dataToUpdate } = expenseData;
+    const dataToUpdate = {
+        ...expenseData,
+        creditCardId:
+            expenseData.paymentMethod === "cartão de crédito"
+                ? expenseData.creditCardId ?? null
+                : null,
+    };
 
     try {
         console.log(`📤 Enviando atualização para API Expense ID: ${id}`, dataToUpdate);
@@ -73,7 +84,6 @@ export async function updateExpenseInAPI(id: string, expenseData: Partial<Expens
             method: "PUT",
             body: JSON.stringify(dataToUpdate),
         });
-        console.log("📥 Resposta da API (Update Expense):", response);
         return response;
     } catch (error) {
         console.error("❌ ERRO DO BACKEND (Update Expense):", error);

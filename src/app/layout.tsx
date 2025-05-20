@@ -4,13 +4,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { DateProvider } from "@/contexts/DateContext";
 import { IncomesProvider } from "@/contexts/IncomesContext";
-import { UserProvider } from "@/contexts/UserContext"; // importa
+import { UserProvider } from "@/contexts/UserContext";
+import ClientLayoutWrapper from "@/components/ClientLayoutWrapper"; // novo
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-});
-
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
@@ -32,7 +29,9 @@ export default function RootLayout({
         <UserProvider>
           <DateProvider>
             <ExpensesProvider>
-              <IncomesProvider>{children}</IncomesProvider>
+              <IncomesProvider>
+                <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+              </IncomesProvider>
             </ExpensesProvider>
           </DateProvider>
         </UserProvider>

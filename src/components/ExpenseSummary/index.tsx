@@ -2,6 +2,7 @@
 
 import { Expense } from "@/interfaces/Expense";
 import { useAlertThreshold } from "@/contexts/AlertThresholdContext";
+import { useCreditCards } from "@/contexts/CreditCardContext";
 import { capitalize } from "@/utils/capitalize";
 import { MONTHS } from "@/utils/constants";
 
@@ -21,6 +22,7 @@ export const ExpenseSummary: React.FC<Props> = ({
   onEdit,
 }) => {
   const { thresholds } = useAlertThreshold();
+  const { cards } = useCreditCards();
 
   const filteredMonthly = expenses.filter((e) => {
     if (!e.date) return false;
@@ -32,17 +34,6 @@ export const ExpenseSummary: React.FC<Props> = ({
     (sum, item) => sum + item.amount,
     0
   );
-
-  const yearlyExpenses = expenses.filter((e) => {
-    const d = new Date(e.date);
-    return d.getFullYear() === year;
-  });
-
-  const totalByType: Record<string, number> = {};
-  yearlyExpenses.forEach((exp) => {
-    if (!totalByType[exp.type]) totalByType[exp.type] = 0;
-    totalByType[exp.type] += exp.amount;
-  });
 
   const alerts: string[] = [];
   Object.entries(thresholds).forEach(([type, threshold]) => {
@@ -56,100 +47,111 @@ export const ExpenseSummary: React.FC<Props> = ({
   });
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="bg-white border-2 border-black p-4 rounded-md mt-4 text-black max-h-[60vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-2">
-          Total de {MONTHS[month]}: R$ {totalMonthly.toFixed(2)}
-        </h2>
+    <div className="w-full overflow-x-auto">
+      <h2 className="text-xl font-bold mb-4 text-black">
+        Despesas de {MONTHS[month]} {year} – Total: R$ {totalMonthly.toFixed(2)}
+      </h2>
 
-        {alerts.length > 0 && (
-          <div
-            className="p-3 bg-yellow-100 border-l-4 border-yellow-600 text-yellow-800 rounded-md mb-4"
-            role="alert"
-            aria-live="polite"
-          >
-            <p className="font-semibold">Atenção!</p>
-            <ul className="list-disc list-inside">
-              {alerts.map((type) => (
-                <li key={type}>
-                  Gasto com <strong>{capitalize(type)}</strong> está próximo ou
-                  acima do limite de R$ {thresholds[type].toFixed(2)}
-                </li>
+      {alerts.length > 0 && (
+        <div className="p-3 bg-yellow-100 border-l-4 border-yellow-600 text-yellow-800 rounded-md mb-4">
+          <p className="font-semibold">Atenção!</p>
+          <ul className="list-disc list-inside">
+            {alerts.map((type) => (
+              <li key={type}>
+                Gasto com <strong>{capitalize(type)}</strong> está próximo ou
+                acima do limite de R$ {thresholds[type].toFixed(2)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {filteredMonthly.length === 0 ? (
+        <p className="text-gray-500">Nenhuma despesa registrada neste mês.</p>
+      ) : (
+        <table className="min-w-[900px] w-full bg-white border border-gray-300 rounded-md overflow-hidden text-sm shadow-md">
+          <thead className="bg-gray-100">
+            <tr>
+              {[
+                "Data",
+                "Categoria",
+                "Subcategoria",
+                "Valor (R$)",
+                "Forma de Pagamento",
+                "Cartão",
+                "Observação",
+                "Ações",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-4 py-2 border-b text-center font-semibold"
+                >
+                  {header}
+                </th>
               ))}
-            </ul>
-          </div>
-        )}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredMonthly.map((exp, index) => {
+              const matchedCard = cards.find((c) => c._id === exp.creditCardId);
 
-        {filteredMonthly.length === 0 ? (
-          <p className="text-gray-500 mt-2">
-            Nenhuma despesa registrada neste mês.
-          </p>
-        ) : (
-          <ul className="space-y-2 text-sm">
-            {filteredMonthly.map((exp) => (
-              <li
-                key={exp._id}
-                className="bg-black rounded-md text-white p-3 shadow-lg border-l-4 border-black flex items-center justify-between"
-              >
-                <div>
-                  <span>
-                    • {capitalize(exp.type)}{" "}
+              return (
+                <tr
+                  key={exp._id}
+                  className={`transition hover:bg-gray-100 ${
+                    index % 2 === 0 ? "bg-white" : "bg-gray-300"
+                  }`}
+                >
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    {new Date(exp.date).toLocaleDateString("pt-BR")}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    {capitalize(exp.type)}{" "}
                     {exp.fixed && (
-                      <span className="mx-1 px-2 py-1 rounded bg-yellow-400 text-black text-xs font-semibold">
-                        GASTO FIXO
+                      <span className="ml-1 px-2 py-0.5 text-xs bg-yellow-300 text-black rounded">
+                        Fixo
                       </span>
                     )}
-                    – {new Date(exp.date).toLocaleDateString()} – R${" "}
-                    {exp.amount.toFixed(2)}
-                  </span>
-
-                  {exp.subcategory && (
-                    <span className="block mt-1 text-blue-300 text-xs">
-                      Subcategoria: {capitalize(exp.subcategory)}
-                    </span>
-                  )}
-
-                  {exp.note && (
-                    <span className="block mt-1 text-gray-300">{exp.note}</span>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => onEdit(exp)}
-                    className="text-white px-4 py-2 rounded-md text-xs bg-blue-600 cursor-pointer h-9 hover:bg-blue-500 transition-colors duration-300"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => onDelete(exp._id)}
-                    className="text-white px-4 py-2 rounded-md text-xs bg-red-600 cursor-pointer h-9 hover:bg-red-500 transition-colors duration-300"
-                  >
-                    Remover
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      <div className="p-4 bg-white rounded-md mt-4 text-black border-2 border-black max-h-[50vh] overflow-y-auto">
-        <h2 className="text-xl font-bold">Resumo Anual por Tipo ({year})</h2>
-        {Object.keys(totalByType).length === 0 ? (
-          <p className="text-gray-500 mt-2">Nenhum gasto lançado neste ano.</p>
-        ) : (
-          <ul className="mt-2 space-y-1 text-sm">
-            {Object.entries(totalByType).map(([type, total]) => (
-              <li
-                className="bg-black text-white px-4 py-2 rounded-md my-4"
-                key={type}
-              >
-                • {capitalize(type)} – R$ {total.toFixed(2)}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                  </td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    {capitalize(exp.subcategory || "-")}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    R$ {exp.amount.toFixed(2)}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    {exp.paymentMethod}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    {matchedCard
+                      ? `${matchedCard.name} •••• ${matchedCard.lastDigits}`
+                      : "-"}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    {exp.note || "-"}
+                  </td>
+                  <td className="px-4 py-2 border-b text-center align-middle">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => onEdit(exp)}
+                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-500"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => onDelete(exp._id)}
+                        className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-500"
+                      >
+                        Remover
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
