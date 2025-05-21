@@ -3,6 +3,8 @@
 import { useCategory, Category } from "@/contexts/CategoryContext";
 import { DEFAULT_CATEGORIES } from "@/utils/constants";
 import { useState, useEffect } from "react";
+import NextButton from "../ClickButton2";
+import PlusButton from "../PlusButton";
 
 export default function CategoryManagerForm({
   onSaveSuccess,
@@ -63,7 +65,7 @@ export default function CategoryManagerForm({
   if (isLoading) return <p>Carregando categorias...</p>;
 
   return (
-    <div className="p-4 border rounded-md bg-white shadow-md max-w-3xl mx-auto">
+    <div className="p-4 border rounded-md bg-white shadow-md max-w-3xl mx-auto text-black">
       <h2 className="text-xl font-semibold mb-4">Gerenciar Categorias</h2>
 
       <div className="flex gap-4 items-start">
@@ -106,13 +108,7 @@ export default function CategoryManagerForm({
           </div>
         )}
 
-        {/* Botão Adicionar */}
-        <button
-          onClick={handleAddCategory}
-          className="mt-6 bg-blue-600 text-white h-10 px-4 rounded hover:bg-blue-700"
-        >
-          +
-        </button>
+        <PlusButton onClick={handleAddCategory} />
       </div>
 
       {/* Lista de categorias selecionadas */}
@@ -137,12 +133,7 @@ export default function CategoryManagerForm({
       </div>
 
       {/* Botão de salvar */}
-      <button
-        onClick={handleSave}
-        className="mt-4 px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-      >
-        Salvar Categorias
-      </button>
+      <NextButton onClick={handleSave}>Salvar Categorias</NextButton>
     </div>
   );
 }

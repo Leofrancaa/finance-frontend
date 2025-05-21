@@ -5,6 +5,8 @@ import { useAlertThreshold } from "@/contexts/AlertThresholdContext";
 import { useCreditCards } from "@/contexts/CreditCardContext";
 import { capitalize } from "@/utils/capitalize";
 import { MONTHS } from "@/utils/constants";
+import EditButton from "../EditButton";
+import DeleteButton from "../DeleteButton";
 
 interface Props {
   expenses: Expense[];
@@ -49,7 +51,8 @@ export const ExpenseSummary: React.FC<Props> = ({
   return (
     <div className="w-full overflow-x-auto">
       <h2 className="text-xl font-bold mb-4 text-black">
-        Despesas de {MONTHS[month]} {year} – Total: R$ {totalMonthly.toFixed(2)}
+        Despesas de {MONTHS[month]} {year} – Total:{" "}
+        <span className="text-red-600">R$ {totalMonthly.toFixed(2)}</span>
       </h2>
 
       {alerts.length > 0 && (
@@ -69,7 +72,7 @@ export const ExpenseSummary: React.FC<Props> = ({
       {filteredMonthly.length === 0 ? (
         <p className="text-gray-500">Nenhuma despesa registrada neste mês.</p>
       ) : (
-        <table className="min-w-[900px] w-full bg-white border border-gray-300 rounded-md overflow-hidden text-sm shadow-md">
+        <table className="min-w-[900px] w-full bg-white border border-neutral-800 rounded-md overflow-hidden text-sm shadow-md text-black">
           <thead className="bg-gray-100">
             <tr>
               {[
@@ -98,7 +101,7 @@ export const ExpenseSummary: React.FC<Props> = ({
               return (
                 <tr
                   key={exp._id}
-                  className={`transition hover:bg-gray-100 ${
+                  className={`transition ${
                     index % 2 === 0 ? "bg-white" : "bg-gray-300"
                   }`}
                 >
@@ -132,18 +135,9 @@ export const ExpenseSummary: React.FC<Props> = ({
                   </td>
                   <td className="px-4 py-2 border-b text-center align-middle">
                     <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => onEdit(exp)}
-                        className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-500"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        onClick={() => onDelete(exp._id)}
-                        className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-500"
-                      >
-                        Remover
-                      </button>
+                      <EditButton onClick={() => onEdit(exp)} />
+
+                      <DeleteButton onClick={() => onDelete(exp._id)} />
                     </div>
                   </td>
                 </tr>

@@ -1,0 +1,57 @@
+.fancy-button {
+  border: none;
+  display: inline-block; /* ou block, se quiser ocupar uma linha toda */
+  position: relative;
+  padding: 8px 24px;
+  font-size: 16px;
+  background: transparent;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  color: royalblue;
+  z-index: 1;
+  font-family: inherit;
+  font-weight: 500;
+  background-color: white;
+  border-radius: 8px;
+
+  /* Adicionado para evitar cortar visual com textos grandes */
+  min-width: 150px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.fancy-button .fancy-span {
+  position: absolute;
+  inset: 0; /* cobre tudo */
+  z-index: -1;
+  background: transparent;
+  border: 4px solid royalblue;
+  border-radius: 8px;
+}
+
+.fancy-button .fancy-span::before {
+  content: "";
+  position: absolute;
+  width: 12%;
+  height: 700%;
+  background: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-60deg);
+  transition: all 0.5s ease-in-out;
+}
+
+.fancy-button:hover .fancy-span::before {
+  transform: translate(-50%, -50%) rotate(-90deg);
+  width: 100%;
+  background: royalblue;
+}
+
+.fancy-button:hover {
+  color: white;
+}
+
+.fancy-button:active .fancy-span::before {
+  background: #2751cd;
+}

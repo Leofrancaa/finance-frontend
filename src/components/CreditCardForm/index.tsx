@@ -41,7 +41,7 @@ export default function CreditCardForm() {
   };
 
   return (
-    <div className="p-4 bg-white rounded-md border w-full shadow-md">
+    <div className="p-4 bg-white rounded-md border w-full shadow-md text-black">
       <h2 className="text-xl font-bold mb-4">Cartões de Crédito</h2>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-2 mb-6">

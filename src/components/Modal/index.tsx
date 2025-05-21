@@ -13,7 +13,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 backdrop-blur-sm bg-white/30 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-xl relative">
+      <div className="bg-white rounded-lg p-6 w-full max-w-3xl relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-6 text-gray-600 hover:text-black text-3xl cursor-pointer"

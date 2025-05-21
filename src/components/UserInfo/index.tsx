@@ -18,8 +18,8 @@ const UserInfoAndBalance = () => {
   });
 
   return (
-    <div className="mt-2 mb-5 text-center absolute top-5 right-28 ">
-      <p className="text-lg text-gray-800">
+    <div className=" text-center ">
+      <p className="text-lg text-black">
         Bem vindo(a): {user.name}, seu saldo atual é: R$ {formattedSaldo}
       </p>
     </div>

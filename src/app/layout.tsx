@@ -1,16 +1,17 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { ExpensesProvider } from "@/contexts/ExpensesContext";
 import { DateProvider } from "@/contexts/DateContext";
 import { IncomesProvider } from "@/contexts/IncomesContext";
 import { UserProvider } from "@/contexts/UserContext";
-import ClientLayoutWrapper from "@/components/ClientLayoutWrapper"; // novo
+import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
-const geistMono = Geist_Mono({
+// Fonte principal: Manrope
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-manrope",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -24,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${geist.variable} ${geistMono.variable}`}>
-      <body className="antialiased bg-gray-100 min-h-screen">
+    <html lang="pt-BR" className={`${manrope.variable}`}>
+      <body className="antialiased bg-gray-100 min-h-screen font-sans">
         <UserProvider>
           <DateProvider>
             <ExpensesProvider>

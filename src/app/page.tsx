@@ -78,7 +78,7 @@ export default function HomePage() {
     <AlertThresholdProvider>
       <CreditCardProvider>
         <CategoryProvider>
-          <main className="w-full bg-gray-200 text-black p-6 flex flex-col items-center gap-6 mt-20">
+          <main className="w-full bg-gray-100 text-black p-6 flex flex-col items-center gap-6 mt-20">
             <h1 className="text-2xl font-bold mt">Dashboard</h1>
             <div className="flex gap-4">
               <YearSelector />

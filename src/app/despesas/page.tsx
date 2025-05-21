@@ -1,28 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { ExpenseForm } from "@/components/ExpenseForm";
-import { Modal } from "@/components/Modal";
-import { MonthSelect } from "@/components/MonthSelect";
-import { YearSelector } from "@/components/YearSelector";
-import { ExpenseSummary } from "@/components/ExpenseSummary";
-import { CalendarView } from "@/components/CalendarView";
-import { ExpenseByTypeChart } from "@/components/ExpenseByTypeChart";
-import { MonthlyExpensesChart } from "@/components/MonthlyExpensesChart";
-import { AlertThresholdForm } from "@/components/AlertsForm";
-import CategoryManagerForm from "@/components/ExpenseCategoryForm";
-import CreditCardForm from "@/components/CreditCardForm";
-
-import { useExpenses } from "@/contexts/ExpensesContext";
-import { useDate } from "@/contexts/DateContext";
-import { useUser } from "@/contexts/UserContext";
-import { AlertThresholdProvider } from "@/contexts/AlertThresholdContext";
-import { CategoryProvider } from "@/contexts/CategoryContext";
-import { CreditCardProvider } from "@/contexts/CreditCardContext";
-import { useFetchExpenses } from "@/hooks/useFetchExpenses";
-import { Expense } from "@/interfaces/Expense";
-import { formattedSaldo } from "@/components/UserInfo";
+import {
+  useState,
+  useEffect,
+  useRouter,
+  ExpenseForm,
+  Modal,
+  MonthSelect,
+  YearSelector,
+  ExpenseSummary,
+  ExpenseByTypeChart,
+  MonthlyExpensesChart,
+  AlertThresholdForm,
+  CategoryManagerForm,
+  CreditCardForm,
+  useExpenses,
+  useDate,
+  useUser,
+  AlertThresholdProvider,
+  CategoryProvider,
+  CreditCardProvider,
+  useFetchExpenses,
+  FancyButton,
+  Expense,
+} from "./importsDespesas";
 
 export default function DespesasPage() {
   const { user } = useUser();
@@ -54,61 +55,47 @@ export default function DespesasPage() {
     setModalOpen(false);
   };
 
-  const totalDespesas = expenses
-    .filter((e) => {
-      const d = new Date(e.date);
-      return d.getFullYear() === selectedYear && d.getMonth() === selectedMonth;
-    })
-    .reduce((sum, e) => sum + e.amount, 0);
-
   return (
     <AlertThresholdProvider>
       <CreditCardProvider>
         <CategoryProvider>
-          <main className="w-full bg-gray-200 text-black p-6 flex flex-col items-center gap-6 mt-20">
+          <main className="w-full bg-gray-200 text-black px-6 py-8 flex flex-col items-center gap-6 mt-20">
             <h1 className="text-2xl font-bold">Gerenciador de Despesas</h1>
-            <div className="flex gap-4">
-              <YearSelector />
-              <MonthSelect />
-            </div>
+            <div className="flex justify-between w-[96vw]">
+              <div className="flex gap-4">
+                <YearSelector />
+                <MonthSelect />
+              </div>
 
-            <div className="flex gap-4 mt-4 flex-wrap">
-              <button
-                onClick={() => openExpenseModal()}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Nova Despesa
-              </button>
-              <button
-                onClick={() => setShowCategoryModal(true)}
-                className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
-              >
-                Gerenciar Categorias
-              </button>
-              <button
-                onClick={() => setShowAlertModal(true)}
-                className="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700"
-              >
-                Alertas de Gasto
-              </button>
-              <button
-                onClick={() => setShowCardModal(true)}
-                className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-              >
-                Cartões de Crédito
-              </button>
+              <div className="flex gap-4 mt-4 flex-wrap">
+                <FancyButton onClick={() => openExpenseModal()}>
+                  Nova Despesa
+                </FancyButton>
+
+                <FancyButton onClick={() => setShowCategoryModal(true)}>
+                  Gerenciar Categorias
+                </FancyButton>
+
+                <FancyButton onClick={() => setShowAlertModal(true)}>
+                  Alertas de Gasto
+                </FancyButton>
+
+                <FancyButton onClick={() => setShowCardModal(true)}>
+                  Cartões de Crédito
+                </FancyButton>
+              </div>
             </div>
 
             {/* Modal de despesa */}
             <Modal isOpen={modalOpen} onClose={closeModal}>
               <div className="mb-4">
-                <h2 className="text-xl font-bold">
+                <h2 className="text-xl font-bold text-black">
                   {editingExpense ? "Editar Despesa" : "Nova Despesa"}
                 </h2>
               </div>
 
               {/* Aqui você adiciona o seletor de mês */}
-              <div className="mb-4">
+              <div className="mb-4 ">
                 <MonthSelect />
               </div>
 
@@ -167,15 +154,7 @@ export default function DespesasPage() {
               />
             </div>
 
-            <div className="my-4 p-4 bg-gray-100 rounded border text-lg font-bold">
-              Total de despesas no mês:{" "}
-              <span className="text-red-600">
-                R$ {formattedSaldo(totalDespesas)}
-              </span>
-            </div>
-
             {/* Visuais */}
-            <CalendarView />
             <ExpenseByTypeChart />
             <MonthlyExpensesChart />
           </main>

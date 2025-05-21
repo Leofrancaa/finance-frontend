@@ -17,7 +17,7 @@ export const MonthSelect = () => {
         id="month"
         value={selectedMonth}
         onChange={(e) => setMonth(Number(e.target.value))}
-        className="w-36 p-2 border border-black rounded-md text-black focus:ring-2 focus:ring-blue-400"
+        className="w-36 p-2 border bbg-white rounded-md text-black focus:ring-2 focus:ring-blue-400"
       >
         {MONTHS.map((month, index) => (
           <option key={index} value={index}>

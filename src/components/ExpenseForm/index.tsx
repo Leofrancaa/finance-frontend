@@ -224,7 +224,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 bg-white rounded-md flex flex-col gap-4 border mt-2"
+      className="p-4 bg-white rounded-md flex flex-col gap-4 border mt-2 text-black"
     >
       {/* Tipo da despesa */}
       <select
@@ -350,7 +350,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
         />
         Gasto recorrente (fixo)
         {isEditing && (
-          <span className="text-xs text-gray-500">(Não editável)</span>
+          <span className="text-xs text-black">(Não editável)</span>
         )}
       </label>
 

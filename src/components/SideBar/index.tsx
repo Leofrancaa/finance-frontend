@@ -21,9 +21,9 @@ export default function Sidebar() {
       {/* Botão de menu (sempre visível) */}
       <button
         onClick={toggleSidebar}
-        className="fixed z-50 bg-gray-800 text-white p-2 rounded-md cursor-pointer"
+        className="fixed z-50 text-black p-2 rounded-md cursor-pointer"
       >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
+        {isOpen ? <X size={36} /> : <Menu size={36} />}
       </button>
 
       {/* Sidebar */}

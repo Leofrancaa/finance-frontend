@@ -1,0 +1,31 @@
+.magic-button {
+  --color: #217bff;
+  color: var(--color);
+}
+
+.magic-button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  background: var(--color);
+  height: 150px;
+  width: 200px;
+  border-radius: 50%;
+  top: 100%;
+  left: 100%;
+  transition: all 0.5s ease-in-out;
+}
+
+.magic-button:hover {
+  color: white;
+}
+
+.magic-button:hover::before {
+  top: -30px;
+  left: -30px;
+}
+
+.magic-button:active::before {
+  background: #3a0ca3;
+  transition: background 0s;
+}
