@@ -94,11 +94,6 @@ export default function DespesasPage() {
                 </h2>
               </div>
 
-              {/* Aqui você adiciona o seletor de mês */}
-              <div className="mb-4 ">
-                <MonthSelect />
-              </div>
-
               <ExpenseForm
                 expenseToEdit={editingExpense}
                 onCancelEdit={closeModal}

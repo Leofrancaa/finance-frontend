@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { ExpenseForm } from "@/components/ExpenseForm";
+import ExpenseForm from "@/components/ExpenseForm";
 import { Modal } from "@/components/Modal";
 import { MonthSelect } from "@/components/MonthSelect";
 import { YearSelector } from "@/components/YearSelector";
 import { ExpenseSummary } from "@/components/ExpenseSummary";
 import { ExpenseByTypeChart } from "@/components/ExpenseByTypeChart";
 import { MonthlyExpensesChart } from "@/components/MonthlyExpensesChart";
-import { AlertThresholdForm } from "@/components/AlertsForm";
+import AlertThresholdForm from "@/components/AlertsForm";
 import CategoryManagerForm from "@/components/ExpenseCategoryForm";
 import CreditCardForm from "@/components/CreditCardForm";
 

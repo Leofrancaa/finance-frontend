@@ -1,10 +1,9 @@
-"use client";
-
+import React, { useState, useEffect } from "react";
+import Select from "@/components/Select";
+import Checkbox from "@/components/Checkbox";
+import Button from "@/components/Button";
 import { useCategory, Category } from "@/contexts/CategoryContext";
 import { DEFAULT_CATEGORIES } from "@/utils/constants";
-import { useState, useEffect } from "react";
-import NextButton from "../ClickButton2";
-import PlusButton from "../PlusButton";
 
 export default function CategoryManagerForm({
   onSaveSuccess,
@@ -44,6 +43,14 @@ export default function CategoryManagerForm({
           subcategories: selectedSubcategories,
         },
       ]);
+    } else if (exists) {
+      setSelectedCategories(
+        selectedCategories.map((cat) =>
+          cat.name === currentCategory
+            ? { ...cat, subcategories: selectedSubcategories }
+            : cat
+        )
+      );
     }
 
     setCurrentCategory("");
@@ -56,84 +63,132 @@ export default function CategoryManagerForm({
     );
   };
 
+  const handleDeleteCategory = (name: string) => {
+    setSelectedCategories(
+      selectedCategories.filter((cat) => cat.name !== name)
+    );
+  };
+
   const handleSave = async () => {
     await saveUserCategories(selectedCategories);
     alert("Categorias atualizadas com sucesso!");
-    onSaveSuccess?.(); // ✅ fecha o modal
+    onSaveSuccess?.();
   };
+
+  const categoryOptions = DEFAULT_CATEGORIES.map((cat) => ({
+    value: cat.name,
+    label: cat.name,
+  }));
 
   if (isLoading) return <p>Carregando categorias...</p>;
 
   return (
-    <div className="p-4 border rounded-md bg-white shadow-md max-w-3xl mx-auto text-black">
-      <h2 className="text-xl font-semibold mb-4">Gerenciar Categorias</h2>
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto text-black">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+          Cadastro de Categorias de Despesa
+        </h2>
+        <p className="text-gray-600">
+          Configure as categorias para suas despesas
+        </p>
+      </div>
 
-      <div className="flex gap-4 items-start">
-        {/* Select de Categoria */}
-        <div className="flex-1">
-          <label className="block mb-1 font-medium">Categoria</label>
-          <select
-            className="w-full p-2 border rounded-md"
-            value={currentCategory}
-            onChange={(e) => {
-              setCurrentCategory(e.target.value);
-              setSelectedSubcategories([]);
-            }}
-          >
-            <option value="">Selecione</option>
-            {DEFAULT_CATEGORIES.map((cat) => (
-              <option key={cat.name} value={cat.name}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      <form className="space-y-6">
+        <Select
+          id="category"
+          label="Tipo"
+          options={categoryOptions}
+          required
+          value={currentCategory}
+          placeholder="Selecione uma opção"
+          onChange={(e) => {
+            setCurrentCategory(e.target.value);
+            setSelectedSubcategories(
+              selectedCategories.find((c) => c.name === e.target.value)
+                ?.subcategories || []
+            );
+          }}
+        />
 
-        {/* Subcategorias */}
         {currentCategory && availableSubcategories.length > 0 && (
-          <div className="flex-1">
-            <label className="block mb-1 font-medium">Subcategorias</label>
-            <div className="flex flex-col gap-2 border rounded-md p-2 max-h-40 overflow-y-auto">
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="text-md font-medium text-gray-700 mb-3">Subtipos</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {availableSubcategories.map((sub) => (
-                <label key={sub} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={selectedSubcategories.includes(sub)}
-                    onChange={() => toggleSubcategory(sub)}
-                  />
-                  {sub}
-                </label>
+                <Checkbox
+                  key={sub}
+                  id={`sub-${sub}`}
+                  label={sub}
+                  checked={selectedSubcategories.includes(sub)}
+                  onChange={() => toggleSubcategory(sub)}
+                />
               ))}
             </div>
           </div>
         )}
 
-        <PlusButton onClick={handleAddCategory} />
-      </div>
+        <div className="flex justify-end">
+          <Button variant="secondary" onClick={handleAddCategory} type="button">
+            Adicionar categoria
+          </Button>
+        </div>
 
-      {/* Lista de categorias selecionadas */}
-      <div className="mt-6">
-        <h3 className="font-semibold mb-2">Categorias Selecionadas</h3>
-        {selectedCategories.length === 0 ? (
-          <p className="text-gray-500">Nenhuma categoria selecionada.</p>
-        ) : (
-          <ul className="list-disc list-inside text-sm">
-            {selectedCategories.map((cat) => (
-              <li key={cat.name}>
-                {cat.name}
-                {cat.subcategories.length > 0 && (
-                  <span className="text-gray-600">
-                    : {cat.subcategories.join(", ")}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+        <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
+          <h3 className="text-md font-medium text-gray-700 mb-3">
+            Categorias selecionadas
+          </h3>
+          {selectedCategories.length === 0 ? (
+            <p className="text-gray-500 text-sm">
+              Nenhuma categoria selecionada.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {selectedCategories.map((cat) => (
+                <div
+                  key={cat.name}
+                  className="flex items-center justify-between p-2 bg-white rounded border border-gray-200"
+                >
+                  <div className="flex items-center">
+                    <span className="font-medium text-gray-800">
+                      {cat.name}
+                    </span>
+                    {cat.subcategories.length > 0 && (
+                      <>
+                        <span className="mx-2 text-gray-400">•</span>
+                        <span className="text-sm text-gray-600">
+                          {cat.subcategories.join(", ")}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCategory(cat.name)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M6 2a1 1 0 00-.894.553L4.382 4H3a1 1 0 000 2h1v10a2 2 0 002 2h8a2 2 0 002-2V6h1a1 1 0 100-2h-1.382l-.724-1.447A1 1 0 0014 2H6zm2 5a1 1 0 012 0v6a1 1 0 11-2 0V7zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V7a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* Botão de salvar */}
-      <NextButton onClick={handleSave}>Salvar Categorias</NextButton>
+        <Button type="button" variant="primary" fullWidth onClick={handleSave}>
+          Salvar categorias
+        </Button>
+      </form>
     </div>
   );
 }

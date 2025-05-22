@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ExpenseForm } from "@/components/ExpenseForm";
+import ExpenseForm from "@/components/ExpenseForm";
 import { IncomeForm } from "@/components/IncomeForm";
 import { Modal } from "@/components/Modal";
 import { MonthSelect } from "@/components/MonthSelect";
