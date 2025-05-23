@@ -88,12 +88,6 @@ export default function DespesasPage() {
 
             {/* Modal de despesa */}
             <Modal isOpen={modalOpen} onClose={closeModal}>
-              <div className="mb-4">
-                <h2 className="text-xl font-bold text-black">
-                  {editingExpense ? "Editar Despesa" : "Nova Despesa"}
-                </h2>
-              </div>
-
               <ExpenseForm
                 expenseToEdit={editingExpense}
                 onCancelEdit={closeModal}
@@ -106,9 +100,6 @@ export default function DespesasPage() {
               isOpen={showCategoryModal}
               onClose={() => setShowCategoryModal(false)}
             >
-              <div className="mb-4">
-                <h2 className="text-xl font-bold">Gerenciar Categorias</h2>
-              </div>
               <CategoryManagerForm
                 onSaveSuccess={() => setShowCategoryModal(false)}
               />
@@ -119,9 +110,6 @@ export default function DespesasPage() {
               isOpen={showAlertModal}
               onClose={() => setShowAlertModal(false)}
             >
-              <div className="mb-4">
-                <h2 className="text-xl font-bold">Alertas de Gasto</h2>
-              </div>
               <AlertThresholdForm
                 onSaveSuccess={() => setShowAlertModal(false)}
               />
@@ -132,9 +120,6 @@ export default function DespesasPage() {
               isOpen={showCardModal}
               onClose={() => setShowCardModal(false)}
             >
-              <div className="mb-4">
-                <h2 className="text-xl font-bold">Gerenciar Cartões</h2>
-              </div>
               <CreditCardForm />
             </Modal>
 

@@ -11,6 +11,8 @@ interface InputProps {
   value?: string | number;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   maxLength?: number; // ✅ suporte adicionado
+  name?: string; // ✅ suporte adicionado
+  min?: string; // ✅ suporte adicionado
 }
 
 const Input: React.FC<InputProps> = ({

@@ -83,14 +83,23 @@ export default function CategoryManagerForm({
   if (isLoading) return <p>Carregando categorias...</p>;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto text-black">
-      <div className="mb-6">
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
+      <div className="mb-6 relative">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Cadastro de Categorias de Despesa
         </h2>
         <p className="text-gray-600">
           Configure as categorias para suas despesas
         </p>
+        {onSaveSuccess && (
+          <button
+            type="button"
+            onClick={onSaveSuccess}
+            className="absolute top-0 right-0 text-3xl text-gray-500 hover:text-black cursor-pointer"
+          >
+            &times;
+          </button>
+        )}
       </div>
 
       <form className="space-y-6">

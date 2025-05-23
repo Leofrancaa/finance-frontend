@@ -1,18 +1,19 @@
 "use client";
+
 import { useIncomes } from "@/contexts/IncomesContext";
 import { useDate } from "@/contexts/DateContext";
-import { MONTHS } from "../../utils/constants";
-import { Income } from "@/interfaces/Income"; // Importa a interface Income
+import { MONTHS } from "@/utils/constants";
+import { Income } from "@/interfaces/Income";
+import EditButton from "../EditButton";
+import DeleteButton from "../DeleteButton";
+import { capitalize } from "@/utils/capitalize";
 
-// Define as props do componente
 interface IncomeDashboardProps {
-  // Não precisa mais passar incomes/deleteIncome via props, pois usa o contexto
-  onEdit: (income: Income) => void; // Adiciona prop para edição
+  onEdit: (income: Income) => void;
 }
 
 export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
   const { selectedYear, selectedMonth } = useDate();
-  // Obtém incomes e deleteIncome diretamente do contexto
   const { incomes, deleteIncome } = useIncomes();
 
   const filtered = incomes.filter((income) => {
@@ -25,53 +26,68 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
   const total = filtered.reduce((sum, income) => sum + income.amount, 0);
 
   return (
-    <div className="p-4 bg-blue-50 border rounded my-6">
-      <strong className="block text-blue-900 text-lg mb-4">
-        Total de receitas em {MONTHS[selectedMonth]} de {selectedYear}: R${" "}
-        {total.toFixed(2)}
-      </strong>
+    <div className="w-full overflow-x-auto">
+      <h2 className="text-xl font-bold mb-4 text-black">
+        Receitas de {MONTHS[selectedMonth]} {selectedYear} – Total:{" "}
+        <span className="text-green-600">R$ {total.toFixed(2)}</span>
+      </h2>
 
       {filtered.length === 0 ? (
-        <p className="text-gray-600 text-sm mt-2">
-          Nenhuma receita cadastrada neste período.
-        </p>
+        <p className="text-gray-500">Nenhuma receita registrada neste mês.</p>
       ) : (
-        <ul className="mt-2 text-sm text-blue-900 space-y-3">
-          {filtered.map((income) => (
-            <li
-              // Usa _id do backend se disponível, senão o id gerado no front
-              key={income._id ?? income.date}
-              className="bg-white p-3 rounded-md flex justify-between items-center shadow"
-            >
-              <div>
-                {new Date(income.date).toLocaleDateString("pt-BR")} —{" "}
-                {/* Capitaliza o tipo */}
-                {income.type
-                  ? income.type[0].toUpperCase() + income.type.slice(1)
-                  : "Tipo não definido"}
-                : <b>R$ {income.amount.toFixed(2)}</b>
-                {income.note && <span> ({income.note})</span>}
-              </div>
-              {/* Container para os botões */}
-              <div className="flex gap-2">
-                <button
-                  // Chama onEdit passando a receita completa
-                  onClick={() => onEdit(income)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors duration-200"
+        <table className="min-w-[900px] w-full bg-white border border-neutral-800 rounded-md overflow-hidden text-sm shadow-md text-black">
+          <thead className="bg-gray-100">
+            <tr>
+              {[
+                "Data",
+                "Categoria",
+                "Fonte",
+                "Valor (R$)",
+                "Observação",
+                "Ações",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-4 py-2 border-b text-center font-semibold"
                 >
-                  Editar
-                </button>
-                <button
-                  // Usa _id do backend se disponível para deletar
-                  onClick={() => deleteIncome(income._id)}
-                  className="bg-red-600 hover:bg-red-500 text-white text-xs font-bold py-2 px-4 rounded cursor-pointer transition-colors duration-200"
-                >
-                  Remover
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((income, index) => (
+              <tr
+                key={income._id ?? income.date}
+                className={`transition ${
+                  index % 2 === 0 ? "bg-white" : "bg-gray-300"
+                }`}
+              >
+                <td className="px-4 py-2 border-b text-center align-middle">
+                  {new Date(income.date).toLocaleDateString("pt-BR")}
+                </td>
+                <td className="px-4 py-2 border-b text-center align-middle">
+                  {capitalize(income.type)}
+                </td>
+                <td className="px-4 py-2 border-b text-center align-middle">
+                  {income.source || "-"}
+                </td>
+                <td className="px-4 py-2 border-b text-center align-middle">
+                  R$ {income.amount.toFixed(2)}
+                </td>
+                <td className="px-4 py-2 border-b text-center align-middle">
+                  {income.note || "-"}
+                </td>
+                <td className="px-4 py-2 border-b text-center align-middle">
+                  <div className="flex justify-center gap-2">
+                    <EditButton onClick={() => onEdit(income)} />
+                    <DeleteButton onClick={() => deleteIncome(income._id)} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

@@ -60,18 +60,27 @@ export default function AlertThresholdForm({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-6xl mx-auto">
-      <div className="mb-6">
+    <div className="bg-white p-6 rounded-lg shadow-md max-w-screen-xl w-full mx-auto">
+      <div className="mb-6  relative">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Cadastro de Limite de Gastos
         </h2>
         <p className="text-gray-600">
           Defina limites mensais para cada categoria de despesa
         </p>
+        {onSaveSuccess && (
+          <button
+            type="button"
+            onClick={onSaveSuccess}
+            className="absolute top-0 right-0 text-3xl text-gray-500 hover:text-black cursor-pointer"
+          >
+            &times;
+          </button>
+        )}
       </div>
 
       <form className="space-y-6">
-        <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-6">
           {EXPENSE_TYPES.map((type) => (
             <div key={type} className="mb-4 last:mb-0">
               <div className="flex items-center justify-between">

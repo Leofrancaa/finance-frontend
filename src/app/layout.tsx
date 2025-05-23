@@ -15,7 +15,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Gerenciador de Finanças",
+  title: "Nexus",
   description: "Controle seus gastos de forma simples e visual",
 };
 
