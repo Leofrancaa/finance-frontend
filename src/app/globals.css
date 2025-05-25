@@ -54,3 +54,240 @@ body {
 .animate-crypto-float {
   animation: crypto-float 3s infinite ease-in-out;
 }
+
+.login-box {
+  position: relative;
+  width: 530px;
+  padding: 40px;
+  background: rgba(0, 0, 0, 0.9);
+  box-sizing: border-box;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+}
+
+.login-box p:first-child {
+  margin: 0 0 30px;
+  color: #fff;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.login-box .user-box {
+  position: relative;
+}
+
+.login-box .user-box input {
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 30px;
+  border: none;
+  border-bottom: 1px solid #fff;
+  outline: none;
+  background: transparent;
+}
+
+.login-box .user-box label {
+  position: static;
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 5px;
+}
+
+.login-box .user-box input:focus ~ label,
+.login-box .user-box input:valid ~ label {
+  top: -20px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.submit-btn {
+  position: relative;
+  display: inline-block;
+  padding: 10px 20px;
+  font-weight: bold;
+  color: #fff;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: 0.5s;
+  margin-top: 40px;
+}
+
+.submit-btn:hover {
+  background: #fff;
+  color: #272727;
+  border-radius: 5px;
+}
+
+.submit-btn span {
+  position: absolute;
+  display: block;
+}
+
+.submit-btn span:nth-child(1) {
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fff);
+  animation: btn-anim1 1.5s linear infinite;
+}
+
+.submit-btn span:nth-child(2) {
+  top: -100%;
+  right: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, transparent, #fff);
+  animation: btn-anim2 1.5s linear infinite;
+  animation-delay: 0.375s;
+}
+
+.submit-btn span:nth-child(3) {
+  bottom: 0;
+  right: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(270deg, transparent, #fff);
+  animation: btn-anim3 1.5s linear infinite;
+  animation-delay: 0.75s;
+}
+
+.submit-btn span:nth-child(4) {
+  bottom: -100%;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(360deg, transparent, #fff);
+  animation: btn-anim4 1.5s linear infinite;
+  animation-delay: 1.125s;
+}
+
+@keyframes btn-anim1 {
+  0% {
+    left: -100%;
+  }
+  50%,
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes btn-anim2 {
+  0% {
+    top: -100%;
+  }
+  50%,
+  100% {
+    top: 100%;
+  }
+}
+
+@keyframes btn-anim3 {
+  0% {
+    right: -100%;
+  }
+  50%,
+  100% {
+    right: 100%;
+  }
+}
+
+@keyframes btn-anim4 {
+  0% {
+    bottom: -100%;
+  }
+  50%,
+  100% {
+    bottom: 100%;
+  }
+}
+
+.login-box p:last-child {
+  color: #aaa;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.login-box a.a2 {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.login-box a.a2:hover {
+  background: transparent;
+  color: #aaa;
+  border-radius: 5px;
+}
+
+.login-box input:-webkit-autofill,
+.login-box input:-webkit-autofill:hover,
+.login-box input:-webkit-autofill:focus,
+.login-box input:-webkit-autofill:active {
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-text-fill-color: #fff !important;
+  background-color: transparent !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  caret-color: white;
+}
+
+.login-box.inverted {
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+}
+
+.login-box.inverted p:first-child {
+  color: #000;
+}
+
+.login-box.inverted .user-box input {
+  color: #000;
+  border-bottom: 1px solid #000;
+  background: transparent;
+}
+
+.login-box.inverted .user-box label {
+  color: #000;
+}
+
+.login-box.inverted .user-box input:-webkit-autofill {
+  -webkit-text-fill-color: #000 !important;
+  box-shadow: 0 0 0px 1000px transparent inset !important;
+  caret-color: black;
+}
+
+.submit-btn.inverted {
+  color: #000;
+}
+
+.submit-btn.inverted:hover {
+  background: #000;
+  color: #fff;
+}
+
+.submit-btn.inverted span:nth-child(1),
+.submit-btn.inverted span:nth-child(2),
+.submit-btn.inverted span:nth-child(3),
+.submit-btn.inverted span:nth-child(4) {
+  background: linear-gradient(90deg, transparent, #000);
+}
+
+.a2.inverted {
+  color: #000 !important;
+  text-decoration: underline !important;
+}
+
+.a2.inverted:hover {
+  color: #555;
+}

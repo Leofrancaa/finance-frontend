@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import Logo from "@/assets/white-logo.png";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -24,9 +26,7 @@ export default function RegisterPage() {
         }/api/auth/register`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
         }
       );
@@ -49,63 +49,66 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded shadow-md w-full max-w-md flex flex-col gap-4"
-      >
-        <h1 className="text-2xl font-bold text-center mb-4 text-black">
-          Cadastro
-        </h1>
+    <main className="min-h-screen bg-black flex flex-col items-center justify-center">
+      <div className="mb-8">
+        <Image src={Logo} alt={""} width={200} height={100}></Image>
+      </div>
+      <div className="login-box inverted">
+        <p>Cadastro</p>
 
         {error && (
-          <div className="bg-red-100 text-red-700 p-2 rounded text-sm">
+          <div className="bg-red-600 text-white p-2 rounded text-sm mb-4 text-center">
             {error}
           </div>
         )}
 
-        <input
-          type="text"
-          placeholder="Nome"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="p-2 border rounded text-black"
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <div className="user-box">
+            <label className="text-black text-sm mb-1 block">Nome</label>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="p-2 border rounded text-black"
-          required
-        />
+          <div className="user-box">
+            <label className="text-black text-sm mb-1 block">Email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="p-2 border rounded text-black"
-          required
-        />
+          <div className="user-box">
+            <label className="text-black text-sm mb-1 block">Senha</label>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-green-600 text-white font-bold py-2 rounded hover:bg-green-700 transition-colors cursor-pointer disabled:opacity-50"
-        >
-          {loading ? "Cadastrando..." : "Cadastrar"}
-        </button>
+          <button type="submit" className="submit-btn inverted">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            {loading ? "Cadastrando..." : "CADASTRAR"}
+          </button>
+        </form>
 
-        <a
-          href="/login"
-          className="text-center text-blue-600 text-sm mt-2 hover:underline"
-        >
-          Já tem uma conta? Faça login
-        </a>
-      </form>
+        <p className="mt-6">
+          Já tem uma conta?{" "}
+          <a href="/login" className="a2 inverted">
+            Faça login
+          </a>
+        </p>
+      </div>
     </main>
   );
 }

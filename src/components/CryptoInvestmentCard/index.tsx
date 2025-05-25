@@ -84,7 +84,7 @@ export default function CryptoInvestmentCard() {
   );
 
   return (
-    <section className="w-[62.5vw] bg-white shadow-lg rounded-lg p-6 border border-gray-200 space-y-6">
+    <section className="w-fit bg-white shadow-lg rounded-lg p-6 border border-gray-200 space-y-6">
       <div className="flex items-center gap-3 mb-4">
         <LineChart className="w-8 h-8 text-yellow-600" />
         <h2 className="text-2xl font-semibold text-gray-800">
@@ -113,7 +113,7 @@ export default function CryptoInvestmentCard() {
           </div>
 
           {/* Lado direito: painel com estilo padronizado */}
-          <div className="w-[23vw] h-auto bg-white rounded-md flex flex-col gap-4 p-6 text-black border border-gray-200 shadow-md">
+          <div className="w-fit h-auto bg-white rounded-md flex flex-col gap-4 px-8 py-6 text-black border border-gray-200 shadow-md">
             <div className="flex items-center gap-3">
               <LineChart className="w-6 h-6 text-yellow-700" />
               <h3 className="text-xl font-semibold">
