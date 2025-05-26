@@ -18,7 +18,8 @@ export default function MacroEconomyCard() {
   useEffect(() => {
     const fetchMacro = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/macro");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/macro`);
+
         const json = await res.json();
 
         const formatted: Record<string, Indicator> = {

@@ -39,7 +39,10 @@ export default function TopStocksCard() {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/stocks");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/stocks`
+        );
+
         const json = await res.json();
         setData(json);
       } catch (error) {

@@ -25,7 +25,10 @@ export default function CryptoOverview() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/crypto");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/crypto`
+        );
+
         const json = await res.json();
         setData(json);
       } catch (error) {
