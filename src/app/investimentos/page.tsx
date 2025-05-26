@@ -15,7 +15,6 @@ import { InvestmentSummary } from "@/components/InvestmentSummary";
 import { deleteInvestment } from "@/services/investmentService";
 import InvestmentInfoPanel from "../../components/InvestmentInfoPanel";
 import MacroEconomyCard from "../../components/MacroEconomyCard";
-import InvestmentSimulator from "../../components/InvestmentSimulator";
 import TopStockCard from "../../components/TopStockCard";
 
 export default function InvestimentosPage() {

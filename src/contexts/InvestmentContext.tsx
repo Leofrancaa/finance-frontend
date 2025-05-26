@@ -4,12 +4,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { Investment } from "@/interfaces/Investment";
 import { getUserIdFromToken } from "@/utils/auth";
-import {
-  getInvestmentsByUser,
-  postInvestmentToAPI,
-  deleteInvestment,
-  updateInvestment,
-} from "@/services/investmentService";
+import { getInvestmentsByUser } from "@/services/investmentService";
 
 interface InvestmentContextType {
   investments: Investment[];
