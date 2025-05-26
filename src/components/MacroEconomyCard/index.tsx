@@ -2,12 +2,34 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { API_BASE_URL } from "../../utils/api";
+
+const indicatorsList = [
+  {
+    id: "selic",
+    name: "Taxa Selic",
+    icon: "/selic.png",
+  },
+  {
+    id: "ipca",
+    name: "IPCA (Inflação)",
+    icon: "/ipca.png",
+  },
+  {
+    id: "ibovespa",
+    name: "Ibovespa",
+    icon: "/ibovespa.png",
+  },
+  {
+    id: "usd",
+    name: "Dólar (USD/BRL)",
+    icon: "/dolar.png",
+  },
+];
 
 type Indicator = {
   id: string;
-  name: string;
-  icon: string;
-  value: string | number | null;
+  value: number | string | null;
   variation?: number | string | null;
 };
 
@@ -18,47 +40,28 @@ export default function MacroEconomyCard() {
   useEffect(() => {
     const fetchMacro = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/macro`);
-
+        const res = await fetch(`${API_BASE_URL}/api/macro`);
         const json = await res.json();
 
         const formatted: Record<string, Indicator> = {
           selic: {
             id: "selic",
-            name: "Taxa Selic",
-            icon: "/selic.png",
-            value: json.selic?.value ? `${json.selic.value}%` : null,
+            value: json.selic?.value ?? null,
             variation: json.selic?.variation ?? null,
           },
           ipca: {
             id: "ipca",
-            name: "IPCA (Inflação)",
-            icon: "/cdi.png",
-            value: json.ipca?.value ? `${json.ipca.value}%` : null,
+            value: json.ipca?.value ?? null,
             variation: json.ipca?.variation ?? null,
           },
           ibovespa: {
             id: "ibovespa",
-            name: "Ibovespa",
-            icon: "/ibovespa.png",
-            value:
-              json.ibovespa?.value !== null
-                ? `R$ ${json.ibovespa.value.toLocaleString("pt-BR", {
-                    minimumFractionDigits: 2,
-                  })}`
-                : null,
+            value: json.ibovespa?.value ?? null,
             variation: json.ibovespa?.variation ?? null,
           },
           usd: {
             id: "usd",
-            name: "Dólar (USD/BRL)",
-            icon: "/dolar.png",
-            value:
-              json.usd?.value !== null
-                ? `R$ ${json.usd.value.toLocaleString("pt-BR", {
-                    minimumFractionDigits: 2,
-                  })}`
-                : null,
+            value: json.usd?.value ?? null,
             variation: json.usd?.variation ?? null,
           },
         };
@@ -77,61 +80,68 @@ export default function MacroEconomyCard() {
   }, []);
 
   return (
-    <section className="w-full flex flex-col gap-4">
-      <h2 className="text-2xl font-semibold text-gray-800">
+    <section className="w-full flex flex-col">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
         🌐 Indicadores Econômicos
       </h2>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-6">
-        {Object.values(data).map((item) => {
+        {indicatorsList.map((indicator) => {
+          const info = data[indicator.id];
           const isPositive =
-            typeof item.variation === "number"
-              ? item.variation >= 0
-              : typeof item.variation === "string"
-              ? !item.variation.includes("-")
+            typeof info?.variation === "number"
+              ? info.variation >= 0
+              : typeof info?.variation === "string"
+              ? !info.variation.includes("-")
               : true;
 
           return (
             <div
-              key={item.id}
+              key={indicator.id}
               className="bg-white border border-gray-200 rounded-lg shadow-md px-5 py-4 w-full h-[125px]"
             >
               <div className="flex gap-2 items-center mb-2">
                 <Image
-                  src={item.icon}
-                  alt={item.name}
+                  src={indicator.icon}
+                  alt={indicator.name}
                   width={40}
                   height={40}
                   className="object-contain"
                 />
                 <h3 className="text-md font-semibold text-gray-800">
-                  {item.name}
+                  {indicator.name}
                 </h3>
               </div>
 
-              <p className="text-sm text-gray-700">
-                Valor atual:{" "}
-                <strong className="text-black">
-                  {loading
-                    ? "Carregando..."
-                    : item.value ?? (
-                        <span className="text-gray-400">Indisponível</span>
-                      )}
-                </strong>
-              </p>
-
-              {item.variation !== undefined && (
-                <p
-                  className={`text-sm font-semibold ${
-                    isPositive ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {typeof item.variation === "number"
-                    ? `Variação 24h: ${
-                        isPositive ? "+" : ""
-                      }${item.variation.toFixed(2)}%`
-                    : `Variação anual: ${item.variation}`}
-                </p>
+              {loading ? (
+                <p className="text-sm text-gray-500">Carregando...</p>
+              ) : info?.value != null ? (
+                <>
+                  <p className="text-sm text-gray-700">
+                    Valor atual:{" "}
+                    <strong className="text-black">
+                      {typeof info.value === "number"
+                        ? `R$ ${info.value.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}`
+                        : info.value}
+                    </strong>
+                  </p>
+                  {info.variation !== undefined && (
+                    <p
+                      className={`text-sm font-semibold ${
+                        isPositive ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {typeof info.variation === "number"
+                        ? `Variação 24h: ${
+                            isPositive ? "+" : ""
+                          }${info.variation.toFixed(2)}%`
+                        : `Variação anual: ${info.variation}`}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-gray-500">Dados indisponíveis</p>
               )}
             </div>
           );

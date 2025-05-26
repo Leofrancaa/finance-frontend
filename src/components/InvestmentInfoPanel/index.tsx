@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { LineChart } from "lucide-react";
+import { API_BASE_URL } from "../../utils/api";
 
 type CoinData = {
   id: string;
@@ -25,9 +26,7 @@ export default function CryptoOverview() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/crypto`
-        );
+        const res = await fetch(`${API_BASE_URL}/api/crypto`);
 
         const json = await res.json();
         setData(json);
@@ -97,9 +96,11 @@ export default function CryptoOverview() {
                     Valor atual:{" "}
                     <strong className="text-black">
                       R${" "}
-                      {coinData.price.toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {typeof coinData?.price === "number"
+                        ? coinData.price.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })
+                        : "Indisponível"}
                     </strong>
                   </p>
                   <p className={`text-sm font-semibold ${variationClass}`}>

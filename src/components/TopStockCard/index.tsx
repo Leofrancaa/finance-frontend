@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { API_BASE_URL } from "../../utils/api";
 
 const stocks = [
   {
@@ -39,9 +40,7 @@ export default function TopStocksCard() {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/stocks`
-        );
+        const res = await fetch(`${API_BASE_URL}/api/stocks`);
 
         const json = await res.json();
         setData(json);

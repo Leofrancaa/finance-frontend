@@ -49,15 +49,6 @@ export default function Sidebar() {
             >
               Despesas
             </Link>
-            <Link href="/cartoes" className="text-gray-700 hover:text-blue-600">
-              Cartões
-            </Link>
-            <Link
-              href="/categorias"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Categorias
-            </Link>
             <Link
               href="/investimentos"
               className="text-gray-700 hover:text-blue-600"
