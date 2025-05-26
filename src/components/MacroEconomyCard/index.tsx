@@ -33,7 +33,7 @@ export default function MacroEconomyCard() {
           ipca: {
             id: "ipca",
             name: "IPCA (Inflação)",
-            icon: "/ipca.png",
+            icon: "/cdi.png",
             value: json.ipca?.value ? `${json.ipca.value}%` : null,
             variation: json.ipca?.variation ?? null,
           },
