@@ -58,8 +58,11 @@ export default function Sidebar() {
             >
               Categorias
             </Link>
-            <Link href="/alertas" className="text-gray-700 hover:text-blue-600">
-              Alertas
+            <Link
+              href="/investimentos"
+              className="text-gray-700 hover:text-blue-600"
+            >
+              investimentos
             </Link>
           </nav>
         </div>

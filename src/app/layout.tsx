@@ -6,6 +6,7 @@ import { DateProvider } from "@/contexts/DateContext";
 import { IncomesProvider } from "@/contexts/IncomesContext";
 import { UserProvider } from "@/contexts/UserContext";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
+import { InvestmentProvider } from "@/contexts/InvestmentContext";
 
 // Fonte principal: Manrope
 const manrope = Manrope({
@@ -31,7 +32,9 @@ export default function RootLayout({
           <DateProvider>
             <ExpensesProvider>
               <IncomesProvider>
-                <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+                <InvestmentProvider>
+                  <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+                </InvestmentProvider>
               </IncomesProvider>
             </ExpensesProvider>
           </DateProvider>
