@@ -55,7 +55,7 @@ export default function InvestimentosPage() {
     <main className="w-full bg-gray-200 text-black px-6 py-8 flex flex-col items-center gap-6 mt-20 h-screen">
       <h1 className="text-2xl font-bold">Gerenciador de Investimentos</h1>
 
-      <div className="flex justify-between w-[96vw]">
+      <div className="flex justify-between w-full">
         <div className="flex gap-4">
           <YearSelector />
           <MonthSelect />

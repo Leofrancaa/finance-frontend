@@ -9,8 +9,6 @@ import {
   MonthSelect,
   YearSelector,
   ExpenseSummary,
-  ExpenseByTypeChart,
-  MonthlyExpensesChart,
   AlertThresholdForm,
   CategoryManagerForm,
   CreditCardForm,
@@ -59,9 +57,9 @@ export default function DespesasPage() {
     <AlertThresholdProvider>
       <CreditCardProvider>
         <CategoryProvider>
-          <main className="w-full bg-gray-200 text-black px-6 py-8 flex flex-col items-center gap-6 mt-20">
+          <main className="w-full bg-gray-50 text-black px-6 py-8 flex flex-col items-center gap-6">
             <h1 className="text-2xl font-bold">Gerenciador de Despesas</h1>
-            <div className="flex justify-between w-[96vw]">
+            <div className="flex justify-between w-full">
               <div className="flex gap-4">
                 <YearSelector />
                 <MonthSelect />
@@ -135,8 +133,6 @@ export default function DespesasPage() {
             </div>
 
             {/* Visuais */}
-            <ExpenseByTypeChart />
-            <MonthlyExpensesChart />
           </main>
         </CategoryProvider>
       </CreditCardProvider>

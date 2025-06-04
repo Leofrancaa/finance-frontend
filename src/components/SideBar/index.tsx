@@ -1,63 +1,135 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  DollarSign,
+  ArrowDownCircle,
+  LineChart,
+  CreditCard,
+  FolderKanban,
+  Gem,
+  Home,
+} from "lucide-react";
+import LogoutButton from "../LogoutButton";
+import UserInfoAndBalance from "../UserInfo";
+import { useUser } from "../../contexts/UserContext";
 
 export default function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { logout } = useUser();
+
+  const handleLogout = () => {
+    logout(); // <- sua função de logout
+    router.push("/login");
+  };
+
   const pathname = usePathname();
 
-  const toggleSidebar = () => setIsOpen(!isOpen);
-
-  // Fecha automaticamente ao mudar de rota
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+  const isActive = (path: string) =>
+    pathname === path
+      ? "bg-blue-50 text-blue-700 font-semibold"
+      : "text-gray-700";
 
   return (
-    <>
-      {/* Botão de menu (sempre visível) */}
-      <button
-        onClick={toggleSidebar}
-        className="fixed z-50 text-black p-2 rounded-md cursor-pointer"
-      >
-        {isOpen ? <X size={36} /> : <Menu size={36} />}
-      </button>
+    <aside className="w-[14vw] h-full bg-white border-r shadow-md flex flex-col px-6 py-8 shrink-0">
+      <div className="flex flex-col gap-0 border-b-1 border-gray-200">
+        <h1 className="text-[27px] font-extrabold text-blue-600 tracking-tight uppercase">
+          Nexus
+        </h1>
+        <h2 className="text-gray-600 text-sm font-light mb-6">
+          Finanças Pessoais
+        </h2>
+      </div>
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
-        <div className="p-6 flex flex-col gap-6 h-full border-r mt-12">
-          <h2 className="text-xl font-bold text-gray-800">Navegação</h2>
-          <nav className="flex flex-col gap-4">
-            <Link href="/" className="text-gray-700 hover:text-blue-600">
-              Dashboard
-            </Link>
-            <Link
-              href="/receitas"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Receitas
-            </Link>
-            <Link
-              href="/despesas"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              Despesas
-            </Link>
-            <Link
-              href="/investimentos"
-              className="text-gray-700 hover:text-blue-600"
-            >
-              investimentos
-            </Link>
-          </nav>
+      <UserInfoAndBalance />
+
+      <nav className="flex flex-col gap-2 mt-6 text-lg">
+        <Link
+          href="/inicial"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/inicio"
+          )}`}
+        >
+          <Home className="w-6 h-6" />
+          Início
+        </Link>
+
+        <Link
+          href="/"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/"
+          )}`}
+        >
+          <LayoutDashboard className="w-6 h-6" />
+          Dashboard
+        </Link>
+
+        <Link
+          href="/receitas"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/receitas"
+          )}`}
+        >
+          <DollarSign className="w-6 h-6" />
+          Receitas
+        </Link>
+
+        <Link
+          href="/despesas"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/despesas"
+          )}`}
+        >
+          <ArrowDownCircle className="w-6 h-6" />
+          Despesas
+        </Link>
+
+        <Link
+          href="/investimentos"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/investimentos"
+          )}`}
+        >
+          <LineChart className="w-6 h-6" />
+          Investimentos
+        </Link>
+
+        <Link
+          href="/cartoes"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/cartoes"
+          )}`}
+        >
+          <CreditCard className="w-6 h-6" />
+          Cartões
+        </Link>
+
+        <Link
+          href="/categorias"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/categorias"
+          )}`}
+        >
+          <FolderKanban className="w-6 h-6" />
+          Categorias
+        </Link>
+
+        <Link
+          href="/planos"
+          className={`flex items-center gap-3 px-4 py-3 rounded-md hover:bg-blue-50 transition ${isActive(
+            "/planos"
+          )}`}
+        >
+          <Gem className="w-6 h-6" />
+          Planos
+        </Link>
+
+        <div className="mt-6">
+          <LogoutButton onClick={handleLogout} />
         </div>
-      </aside>
-    </>
+      </nav>
+    </aside>
   );
 }

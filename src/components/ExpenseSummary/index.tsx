@@ -7,6 +7,7 @@ import { capitalize } from "@/utils/capitalize";
 import { MONTHS } from "@/utils/constants";
 import EditButton from "../EditButton";
 import DeleteButton from "../DeleteButton";
+import { AlertTriangle } from "lucide-react";
 
 interface Props {
   expenses: Expense[];
@@ -37,115 +38,111 @@ export const ExpenseSummary: React.FC<Props> = ({
     0
   );
 
-  const alerts: string[] = [];
-  Object.entries(thresholds).forEach(([type, threshold]) => {
-    const totalThisMonth = filteredMonthly
-      .filter((e) => e.type === type)
-      .reduce((sum, e) => sum + e.amount, 0);
-
-    if (totalThisMonth >= threshold * 0.9) {
-      alerts.push(type);
-    }
+  const gastosPorCategoria: Record<string, number> = {};
+  filteredMonthly.forEach((e) => {
+    gastosPorCategoria[e.type] = (gastosPorCategoria[e.type] || 0) + e.amount;
   });
 
+  const alerts = Object.entries(thresholds)
+    .filter(
+      ([type, limit]) =>
+        gastosPorCategoria[type] && gastosPorCategoria[type] > limit
+    )
+    .map(([type]) => type);
+
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full">
       <h2 className="text-xl font-bold mb-4 text-black">
         Despesas de {MONTHS[month]} {year} – Total:{" "}
         <span className="text-red-600">R$ {totalMonthly.toFixed(2)}</span>
       </h2>
 
       {alerts.length > 0 && (
-        <div className="p-3 bg-yellow-100 border-l-4 border-yellow-600 text-yellow-800 rounded-md mb-4">
-          <p className="font-semibold">Atenção!</p>
-          <ul className="list-disc list-inside">
-            {alerts.map((type) => (
-              <li key={type}>
-                Gasto com <strong>{capitalize(type)}</strong> está próximo ou
-                acima do limite de R$ {thresholds[type].toFixed(2)}
-              </li>
-            ))}
-          </ul>
+        <div className="border border-red-300 bg-red-50 text-red-600 text-sm rounded-md px-4 py-3 mb-4">
+          <div className="flex items-center gap-2 font-semibold mb-1">
+            <AlertTriangle className="w-4 h-4" />
+            Limite Excedido!
+          </div>
+          {alerts.map((type) => {
+            const gasto = gastosPorCategoria[type];
+            const limite = thresholds[type];
+            const excedente = gasto - limite;
+
+            return (
+              <p key={type}>
+                A categoria &quot;<strong>{capitalize(type)}</strong>&quot;
+                ultrapassou o limite em{" "}
+                <strong>R$ {excedente.toFixed(2)}</strong>. Gasto: R${" "}
+                {gasto.toFixed(2)} / Limite: R$ {limite.toFixed(2)}
+              </p>
+            );
+          })}
         </div>
       )}
 
-      {filteredMonthly.length === 0 ? (
-        <p className="text-gray-500">Nenhuma despesa registrada neste mês.</p>
-      ) : (
-        <table className="min-w-[900px] w-full bg-white border border-neutral-800 rounded-md overflow-hidden text-sm shadow-md text-black">
-          <thead className="bg-gray-100">
-            <tr>
-              {[
-                "Data",
-                "Categoria",
-                "Subcategoria",
-                "Valor (R$)",
-                "Forma de Pagamento",
-                "Cartão",
-                "Observação",
-                "Ações",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="px-4 py-2 border-b text-center font-semibold"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredMonthly.map((exp, index) => {
-              const matchedCard = cards.find((c) => c._id === exp.creditCardId);
+      <div className="space-y-4">
+        {filteredMonthly.map((exp) => {
+          const matchedCard = cards.find((c) => c._id === exp.creditCardId);
 
-              return (
-                <tr
-                  key={exp._id}
-                  className={`transition ${
-                    index % 2 === 0 ? "bg-white" : "bg-gray-300"
-                  }`}
-                >
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    {new Date(exp.date).toLocaleDateString("pt-BR")}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    {capitalize(exp.type)}{" "}
+          return (
+            <div
+              key={exp._id}
+              className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 flex flex-col"
+            >
+              {/* Linha 1: Nome + Fixa + Ações */}
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      {capitalize(exp.type)}
+                    </h3>
                     {exp.fixed && (
-                      <span className="ml-1 px-2 py-0.5 text-xs bg-yellow-300 text-black rounded">
-                        Fixo
+                      <span className="text-sm bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                        Fixa
                       </span>
                     )}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    {capitalize(exp.subcategory || "-")}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    R$ {exp.amount.toFixed(2)}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    {exp.paymentMethod}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    {matchedCard
-                      ? `${matchedCard.name} •••• ${matchedCard.lastDigits}`
-                      : "-"}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    {exp.note || "-"}
-                  </td>
-                  <td className="px-4 py-2 border-b text-center align-middle">
-                    <div className="flex justify-center gap-2">
-                      <EditButton onClick={() => onEdit(exp)} />
+                  </div>
+                </div>
 
-                      <DeleteButton onClick={() => onDelete(exp._id)} />
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+                <div className="flex gap-2">
+                  <EditButton onClick={() => onEdit(exp)} />
+                  <DeleteButton onClick={() => onDelete(exp._id)} />
+                </div>
+              </div>
+
+              {/* Linha 2: Dados em linha */}
+              <div className="flex flex-wrap gap-x-8 justify-between text-gray-800 text-sm font-semibold w-[85%] mb-2">
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Valor:</strong> R${" "}
+                  {exp.amount.toFixed(2)}
+                </span>
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Categoria:</strong>{" "}
+                  {capitalize(exp.type)}
+                </span>
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Data:</strong>{" "}
+                  {new Date(exp.date).toLocaleDateString("pt-BR")}
+                </span>
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Pagamento:</strong>{" "}
+                  {exp.paymentMethod}
+                </span>
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Cartão:</strong>{" "}
+                  {matchedCard
+                    ? `${matchedCard.name} •••• ${matchedCard.lastDigits}`
+                    : "-"}
+                </span>
+              </div>
+
+              {exp.note && (
+                <p className="text-gray-600 text-sm mt-1">{exp.note}</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

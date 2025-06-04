@@ -50,14 +50,14 @@ export default function ReceitasPage() {
     <AlertThresholdProvider>
       <CreditCardProvider>
         <CategoryProvider>
-          <main className="w-full bg-gray-200 text-black p-6 flex flex-col items-center gap-6 h-[100vh] mt-20">
+          <main className="w-full bg-gray-50 text-black p-6 flex flex-col items-center gap-6 h-[100vh]">
             {/* Sair */}
 
             <h1 className="text-2xl font-bold text-center">
               Gerenciador de Receitas
             </h1>
 
-            <div className="flex justify-between w-[96vw]">
+            <div className="flex justify-between w-full">
               <div className="flex gap-4">
                 <YearSelector />
                 <MonthSelect />

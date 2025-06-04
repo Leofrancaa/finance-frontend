@@ -10,17 +10,10 @@ export default function LogoutButton({ onClick }: LogoutButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="cursor-pointer group flex items-center w-[45px] h-[45px] bg-red-600 text-white rounded-md shadow-md overflow-hidden transition-all duration-300 hover:w-[120px] active:translate-x-[2px] active:translate-y-[2px]"
+      className="flex items-center gap-3 px-4 py-2 rounded-md  text-red-600 hover:bg-red-100 transition cursor-pointer"
     >
-      {/* Ícone */}
-      <div className="flex items-center justify-center w-[45px] h-full">
-        <LogOut size={18} className="text-white" />
-      </div>
-
-      {/* Texto */}
-      <span className="ml-2 whitespace-nowrap text-sm font-medium opacity-0 w-0 group-hover:opacity-100 group-hover:w-auto transition-all duration-300">
-        Sair
-      </span>
+      <LogOut size={22} className="text-red-600" />
+      <span className="text-lg font-medium">Sair</span>
     </button>
   );
 }

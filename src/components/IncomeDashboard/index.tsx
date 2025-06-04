@@ -26,7 +26,7 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
   const total = filtered.reduce((sum, income) => sum + income.amount, 0);
 
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full">
       <h2 className="text-xl font-bold mb-4 text-black">
         Receitas de {MONTHS[selectedMonth]} {selectedYear} – Total:{" "}
         <span className="text-green-600">R$ {total.toFixed(2)}</span>
@@ -35,59 +35,57 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
       {filtered.length === 0 ? (
         <p className="text-gray-500">Nenhuma receita registrada neste mês.</p>
       ) : (
-        <table className="min-w-[900px] w-full bg-white border border-neutral-800 rounded-md overflow-hidden text-sm shadow-md text-black">
-          <thead className="bg-gray-100">
-            <tr>
-              {[
-                "Data",
-                "Categoria",
-                "Fonte",
-                "Valor (R$)",
-                "Observação",
-                "Ações",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="px-4 py-2 border-b text-center font-semibold"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((income, index) => (
-              <tr
-                key={income._id ?? income.date}
-                className={`transition ${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-300"
-                }`}
-              >
-                <td className="px-4 py-2 border-b text-center align-middle">
-                  {new Date(income.date).toLocaleDateString("pt-BR")}
-                </td>
-                <td className="px-4 py-2 border-b text-center align-middle">
-                  {capitalize(income.type)}
-                </td>
-                <td className="px-4 py-2 border-b text-center align-middle">
-                  {income.source || "-"}
-                </td>
-                <td className="px-4 py-2 border-b text-center align-middle">
-                  R$ {income.amount.toFixed(2)}
-                </td>
-                <td className="px-4 py-2 border-b text-center align-middle">
-                  {income.note || "-"}
-                </td>
-                <td className="px-4 py-2 border-b text-center align-middle">
-                  <div className="flex justify-center gap-2">
-                    <EditButton onClick={() => onEdit(income)} />
-                    <DeleteButton onClick={() => deleteIncome(income._id)} />
+        <div className="space-y-4">
+          {filtered.map((income) => (
+            <div
+              key={income._id}
+              className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 flex flex-col"
+            >
+              {/* Linha 1: Categoria + Ações */}
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-gray-900">
+                      {capitalize(income.type)}
+                    </h3>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+
+                <div className="flex gap-2">
+                  <EditButton onClick={() => onEdit(income)} />
+                  <DeleteButton onClick={() => deleteIncome(income._id)} />
+                </div>
+              </div>
+
+              {/* Linha 2: Dados em linha */}
+              <div className="flex flex-wrap gap-x-8 justify-between text-gray-800 text-sm font-semibold w-[85%] mb-2">
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Categoria:</strong>{" "}
+                  {capitalize(income.type)}
+                </span>
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Valor:</strong> R${" "}
+                  {income.amount.toFixed(2)}
+                </span>
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Data:</strong>{" "}
+                  {new Date(income.date).toLocaleDateString("pt-BR")}
+                </span>
+                <span className="text-gray-500">
+                  <strong className="text-gray-800">Fonte:</strong>{" "}
+                  {income.source || "-"}
+                </span>
+              </div>
+
+              {income.note && (
+                <p className="text-gray-600 text-sm mt-1">
+                  <strong className="text-gray-800">Observação:</strong>{" "}
+                  {income.note}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );
