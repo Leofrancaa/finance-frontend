@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus, TriangleAlert } from "lucide-react";
 import {
   useState,
   useEffect,
@@ -10,30 +11,26 @@ import {
   YearSelector,
   ExpenseSummary,
   AlertThresholdForm,
-  CategoryManagerForm,
-  CreditCardForm,
   useExpenses,
   useDate,
   useUser,
   AlertThresholdProvider,
-  CategoryProvider,
-  CreditCardProvider,
   useFetchExpenses,
-  FancyButton,
   Expense,
+  CreditCardProvider,
+  CategoryProvider,
 } from "./importsDespesas";
 
 export default function DespesasPage() {
   const { user } = useUser();
   const router = useRouter();
 
-  const { selectedMonth, selectedYear } = useDate();
+  const { selectedMonth, selectedYear, setYear } = useDate();
   const { expenses, deleteExpense } = useExpenses();
   useFetchExpenses();
 
-  const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [showAlertModal, setShowAlertModal] = useState(false);
-  const [showCardModal, setShowCardModal] = useState(false);
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
 
@@ -55,32 +52,46 @@ export default function DespesasPage() {
 
   return (
     <AlertThresholdProvider>
-      <CreditCardProvider>
-        <CategoryProvider>
-          <main className="w-full bg-gray-50 text-black px-6 py-8 flex flex-col items-center gap-6">
-            <h1 className="text-2xl font-bold">Gerenciador de Despesas</h1>
-            <div className="flex justify-between w-full">
-              <div className="flex gap-4">
-                <YearSelector />
+      <CategoryProvider>
+        <CreditCardProvider>
+          <main className="w-full bg-gray-50 text-black px-4 md:px-6 py-6 md:py-8 flex flex-col items-center gap-6 min-h-screen">
+            <div className="flex flex-col self-start mb-2">
+              <h1 className="text-xl lg:text-4xl font-extrabold mt-12 lg:mt-2">
+                Despesas
+              </h1>
+              <span className="text-sm text-gray-600">
+                Gerencie suas despesas aqui
+              </span>
+            </div>
+
+            {/* Filtros e botões */}
+            <div className="w-full flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+              {/* Selects lado a lado no mobile */}
+              <div className="flex gap-4 lg:w-[50%]">
+                <YearSelector
+                  value={selectedYear?.toString()}
+                  onValueChange={(value) => setYear(Number(value))}
+                />
                 <MonthSelect />
               </div>
 
-              <div className="flex gap-4 mt-4 flex-wrap">
-                <FancyButton onClick={() => openExpenseModal()}>
+              {/* Botões lado a lado, alinhados à direita */}
+              <div className="flex gap-4 justify-end w-full lg:w-[50%]">
+                <button
+                  className="bg-blue-600 w-full lg:w-60 px-4 py-3 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  onClick={() => openExpenseModal()}
+                >
+                  <Plus />
                   Nova Despesa
-                </FancyButton>
+                </button>
 
-                <FancyButton onClick={() => setShowCategoryModal(true)}>
-                  Gerenciar Categorias
-                </FancyButton>
-
-                <FancyButton onClick={() => setShowAlertModal(true)}>
+                <button
+                  className="bg-blue-600 w-full lg:w-60 px-4 py-3 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  onClick={() => setShowAlertModal(true)}
+                >
+                  <TriangleAlert />
                   Alertas de Gasto
-                </FancyButton>
-
-                <FancyButton onClick={() => setShowCardModal(true)}>
-                  Cartões de Crédito
-                </FancyButton>
+                </button>
               </div>
             </div>
 
@@ -90,16 +101,6 @@ export default function DespesasPage() {
                 expenseToEdit={editingExpense}
                 onCancelEdit={closeModal}
                 onExpenseUpdated={closeModal}
-              />
-            </Modal>
-
-            {/* Modal de categorias */}
-            <Modal
-              isOpen={showCategoryModal}
-              onClose={() => setShowCategoryModal(false)}
-            >
-              <CategoryManagerForm
-                onSaveSuccess={() => setShowCategoryModal(false)}
               />
             </Modal>
 
@@ -113,16 +114,8 @@ export default function DespesasPage() {
               />
             </Modal>
 
-            {/* Modal de cartões */}
-            <Modal
-              isOpen={showCardModal}
-              onClose={() => setShowCardModal(false)}
-            >
-              <CreditCardForm />
-            </Modal>
-
             {/* Lista de despesas */}
-            <div className="w-full mt-6">
+            <div className="w-full mt-2">
               <ExpenseSummary
                 expenses={expenses}
                 year={selectedYear}
@@ -131,11 +124,9 @@ export default function DespesasPage() {
                 onEdit={(e) => openExpenseModal(e)}
               />
             </div>
-
-            {/* Visuais */}
           </main>
-        </CategoryProvider>
-      </CreditCardProvider>
+        </CreditCardProvider>
+      </CategoryProvider>
     </AlertThresholdProvider>
   );
 }

@@ -7,7 +7,6 @@ import { useInvestments } from "@/contexts/InvestmentContext";
 import { useDate } from "@/contexts/DateContext";
 import { Investment } from "@/interfaces/Investment";
 import { Modal } from "@/components/Modal";
-import FancyButton from "@/components/Button";
 import { MonthSelect } from "@/components/MonthSelect";
 import { YearSelector } from "@/components/YearSelector";
 import InvestmentForm from "@/components/InvestmentForm";
@@ -16,6 +15,7 @@ import { deleteInvestment } from "@/services/investmentService";
 import InvestmentInfoPanel from "../../components/InvestmentInfoPanel";
 import MacroEconomyCard from "../../components/MacroEconomyCard";
 import TopStockCard from "../../components/TopStockCard";
+import { Plus } from "lucide-react";
 
 export default function InvestimentosPage() {
   const router = useRouter();
@@ -52,19 +52,30 @@ export default function InvestimentosPage() {
   };
 
   return (
-    <main className="w-full bg-gray-200 text-black px-6 py-8 flex flex-col items-center gap-6 mt-20 h-screen">
-      <h1 className="text-2xl font-bold">Gerenciador de Investimentos</h1>
+    <main className="w-full bg-gray-50 text-black px-6 py-8 flex flex-col items-center gap-4 h-screen">
+      <div className="flex flex-col self-start mb-2">
+        <h1 className="text-xl lg:text-4xl font-extrabold mt-12 lg:mt-2">
+          Investimentos
+        </h1>
+        <span className="text-sm text-gray-600">
+          Gerencie suas investimentos aqui
+        </span>
+      </div>
 
-      <div className="flex justify-between w-full">
-        <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center lg:items-end gap-4 lg:justify-between w-full">
+        <div className="flex gap-4 lg:w-[50%]">
           <YearSelector />
           <MonthSelect />
         </div>
 
         <div className="flex gap-4 mt-4 flex-wrap">
-          <FancyButton onClick={() => openModal()}>
+          <button
+            className="bg-blue-600 w-full lg:w-60 px-4 py-3 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            onClick={() => openModal()}
+          >
+            <Plus></Plus>
             Novo Investimento
-          </FancyButton>
+          </button>
         </div>
       </div>
 
@@ -80,7 +91,7 @@ export default function InvestimentosPage() {
         />
       </Modal>
 
-      <div className="w-full flex items-center gap-6">
+      <div className="w-full flex flex-col lg:flex lg:flex-row items-center gap-6">
         <MacroEconomyCard></MacroEconomyCard>
         <TopStockCard></TopStockCard>
         <InvestmentInfoPanel></InvestmentInfoPanel>

@@ -17,14 +17,14 @@ export default function BalanceCard() {
   });
 
   return (
-    <div className="bg-white border border-blue-100 rounded-lg p-4 w-[25%] shadow-sm">
-      <div className="flex items-center justify-between mb-1">
+    <div className="w-full sm:min-w-[250px] sm:max-w-[100%] md:max-w-[48%] lg:max-w-[32%] xl:max-w-[25%] flex-1 bg-white border border-blue-100 rounded-lg p-4 shadow-sm transition-all">
+      <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-semibold text-gray-800">Saldo Atual</span>
         <Wallet className="w-4 h-4 text-blue-600" />
       </div>
 
       <p
-        className={`text-2xl font-bold ${
+        className={`text-lg lg:text-2xl font-bold ${
           isPositive ? "text-green-600" : "text-red-600"
         } mb-1`}
       >

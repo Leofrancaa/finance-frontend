@@ -8,6 +8,7 @@ import { MONTHS } from "@/utils/constants";
 import EditButton from "../EditButton";
 import DeleteButton from "../DeleteButton";
 import { AlertTriangle } from "lucide-react";
+import { CategoryProvider } from "../../contexts/CategoryContext";
 
 interface Props {
   expenses: Expense[];
@@ -51,47 +52,69 @@ export const ExpenseSummary: React.FC<Props> = ({
     .map(([type]) => type);
 
   return (
-    <div className="w-full">
-      <h2 className="text-xl font-bold mb-4 text-black">
-        Despesas de {MONTHS[month]} {year} – Total:{" "}
-        <span className="text-red-600">R$ {totalMonthly.toFixed(2)}</span>
-      </h2>
+    <CategoryProvider>
+      <div className="w-full">
+        <h2 className="text-lg lg:text-xl font-bold mb-4 text-black">
+          Despesas de {MONTHS[month]} {year} – Total:{" "}
+          <span className="font-semibold text-red-600">
+            R$ {totalMonthly.toFixed(2)}
+          </span>
+        </h2>
 
-      {alerts.length > 0 && (
-        <div className="border border-red-300 bg-red-50 text-red-600 text-sm rounded-md px-4 py-3 mb-4">
-          <div className="flex items-center gap-2 font-semibold mb-1">
-            <AlertTriangle className="w-4 h-4" />
-            Limite Excedido!
+        {alerts.length > 0 && (
+          <div className="border border-red-300 bg-red-50 text-red-700 text-sm rounded-md px-5 py-4 mb-6 space-y-3">
+            <div className="flex items-center gap-2 font-semibold text-red-800 text-base">
+              <AlertTriangle className="w-5 h-5" />
+              Limite de Gastos Excedido
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2">
+              {alerts.map((type) => {
+                const gasto = gastosPorCategoria[type];
+                const limite = thresholds[type];
+                const excedente = gasto - limite;
+
+                return (
+                  <div
+                    key={type}
+                    className="bg-white rounded-md border border-red-200 px-4 py-3 shadow-sm"
+                  >
+                    <p className="font-semibold text-red-700 mb-1">
+                      {capitalize(type)}
+                    </p>
+                    <p className="text-gray-800">
+                      Gasto:{" "}
+                      <span className="font-semibold text-red-600">
+                        R$ {gasto.toFixed(2)}
+                      </span>
+                    </p>
+                    <p className="text-gray-800">
+                      Limite:{" "}
+                      <span className="font-semibold text-gray-900">
+                        R$ {limite.toFixed(2)}
+                      </span>
+                    </p>
+                    <p className="text-sm text-red-600 mt-1">
+                      ⚠️ Excedente: <strong>R$ {excedente.toFixed(2)}</strong>
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          {alerts.map((type) => {
-            const gasto = gastosPorCategoria[type];
-            const limite = thresholds[type];
-            const excedente = gasto - limite;
+        )}
+
+        <div className="grid gap-4">
+          {filteredMonthly.map((exp) => {
+            const matchedCard = cards.find((c) => c._id === exp.creditCardId);
 
             return (
-              <p key={type}>
-                A categoria &quot;<strong>{capitalize(type)}</strong>&quot;
-                ultrapassou o limite em{" "}
-                <strong>R$ {excedente.toFixed(2)}</strong>. Gasto: R${" "}
-                {gasto.toFixed(2)} / Limite: R$ {limite.toFixed(2)}
-              </p>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="space-y-4">
-        {filteredMonthly.map((exp) => {
-          const matchedCard = cards.find((c) => c._id === exp.creditCardId);
-
-          return (
-            <div
-              key={exp._id}
-              className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 flex flex-col"
-            >
-              {/* Linha 1: Nome + Fixa + Ações */}
-              <div className="flex justify-between items-start">
-                <div>
+              <div
+                key={exp._id}
+                className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 grid gap-0"
+              >
+                {/* Cabeçalho com título e botões */}
+                <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-bold text-gray-900">
                       {capitalize(exp.type)}
@@ -102,47 +125,46 @@ export const ExpenseSummary: React.FC<Props> = ({
                       </span>
                     )}
                   </div>
+                  <div className="flex gap-2">
+                    <EditButton onClick={() => onEdit(exp)} />
+                    <DeleteButton onClick={() => onDelete(exp._id)} />
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
-                  <EditButton onClick={() => onEdit(exp)} />
-                  <DeleteButton onClick={() => onDelete(exp._id)} />
+                {/* Detalhes em grid responsivo */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-y-2 text-sm font-medium text-gray-700">
+                  <span>
+                    <strong className="text-gray-800">Valor:</strong> R${" "}
+                    {exp.amount.toFixed(2)}
+                  </span>
+                  <span>
+                    <strong className="text-gray-800">Categoria:</strong>{" "}
+                    {capitalize(exp.type)}
+                  </span>
+                  <span>
+                    <strong className="text-gray-800">Data:</strong>{" "}
+                    {new Date(exp.date).toLocaleDateString("pt-BR")}
+                  </span>
+                  <span>
+                    <strong className="text-gray-800">Pagamento:</strong>{" "}
+                    {exp.paymentMethod}
+                  </span>
+                  <span>
+                    <strong className="text-gray-800">Cartão:</strong>{" "}
+                    {matchedCard
+                      ? `${matchedCard.name} •••• ${matchedCard.lastDigits}`
+                      : "-"}
+                  </span>
                 </div>
-              </div>
 
-              {/* Linha 2: Dados em linha */}
-              <div className="flex flex-wrap gap-x-8 justify-between text-gray-800 text-sm font-semibold w-[85%] mb-2">
-                <span className="text-gray-500">
-                  <strong className="text-gray-800">Valor:</strong> R${" "}
-                  {exp.amount.toFixed(2)}
-                </span>
-                <span className="text-gray-500">
-                  <strong className="text-gray-800">Categoria:</strong>{" "}
-                  {capitalize(exp.type)}
-                </span>
-                <span className="text-gray-500">
-                  <strong className="text-gray-800">Data:</strong>{" "}
-                  {new Date(exp.date).toLocaleDateString("pt-BR")}
-                </span>
-                <span className="text-gray-500">
-                  <strong className="text-gray-800">Pagamento:</strong>{" "}
-                  {exp.paymentMethod}
-                </span>
-                <span className="text-gray-500">
-                  <strong className="text-gray-800">Cartão:</strong>{" "}
-                  {matchedCard
-                    ? `${matchedCard.name} •••• ${matchedCard.lastDigits}`
-                    : "-"}
-                </span>
+                {exp.note && (
+                  <p className="text-gray-600 text-sm mt-2">{exp.note}</p>
+                )}
               </div>
-
-              {exp.note && (
-                <p className="text-gray-600 text-sm mt-1">{exp.note}</p>
-              )}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </CategoryProvider>
   );
 };

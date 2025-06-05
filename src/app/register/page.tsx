@@ -48,8 +48,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="min-h-screen bg-blue-50 flex items-center justify-center px-4">
-      <div className="bg-white w-full max-w-[24vw] rounded-lg shadow p-8">
+    <main className="min-h-screen bg-blue-50 flex items-center justify-center px-4 py-8">
+      <div className="bg-white w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-[24vw] rounded-lg shadow p-6 sm:p-8">
         <h1 className="text-4xl font-extrabold text-center text-blue-600 mb-6 uppercase">
           nexus
         </h1>
@@ -66,10 +66,10 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-          <div className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             <div>
-              <label className="text-sm text-gray-900 font-bold mb-2 block">
+              <label className="text-sm text-gray-900 font-bold mb-1 block">
                 Nome
               </label>
               <input
@@ -83,7 +83,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-900 font-bold mb-2 block">
+              <label className="text-sm text-gray-900 font-bold mb-1 block">
                 E-mail
               </label>
               <input
@@ -97,7 +97,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-900 font-bold mb-2 block">
+              <label className="text-sm text-gray-900 font-bold mb-1 block">
                 Senha
               </label>
               <input
@@ -113,7 +113,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="px-12 py-3 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Cadastrando..." : "Cadastrar"}
           </button>
@@ -128,7 +128,7 @@ export default function RegisterPage() {
 
         <div className="text-center mt-2">
           <Link
-            href="/"
+            href="/inicio"
             className="text-sm text-blue-600 hover:underline inline-block"
           >
             ← Voltar ao início

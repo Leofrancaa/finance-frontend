@@ -27,7 +27,7 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
 
   return (
     <div className="w-full">
-      <h2 className="text-xl font-bold mb-4 text-black">
+      <h2 className="text-lg lg:text-xl font-bold mb-4 text-black">
         Receitas de {MONTHS[selectedMonth]} {selectedYear} – Total:{" "}
         <span className="text-green-600">R$ {total.toFixed(2)}</span>
       </h2>
@@ -58,7 +58,7 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
               </div>
 
               {/* Linha 2: Dados em linha */}
-              <div className="flex flex-wrap gap-x-8 justify-between text-gray-800 text-sm font-semibold w-[85%] mb-2">
+              <div className="grid grid-cols-1 lg:flex lg:flex-wrap gap-x-8 justify-between text-gray-800 text-sm font-semibold w-[85%] mb-2">
                 <span className="text-gray-500">
                   <strong className="text-gray-800">Categoria:</strong>{" "}
                   {capitalize(income.type)}

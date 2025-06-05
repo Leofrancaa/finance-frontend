@@ -1,5 +1,9 @@
+"use client";
+
 import React from "react";
-import { CheckCircle, Star } from "lucide-react";
+import { CheckCircle, Star, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/contexts/UserContext"; // Certifique-se que o contexto está configurado
 
 const plans = [
   {
@@ -52,8 +56,27 @@ const plans = [
 ];
 
 export default function PlansPage() {
+  const { user } = useUser();
+  const router = useRouter();
+
+  const handleBack = () => {
+    if (user) {
+      router.push("/");
+    } else {
+      router.push("/inicio");
+    }
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen text-gray-900 py-16 px-6 flex flex-col items-center">
+      <button
+        onClick={handleBack}
+        className="mb-6 flex items-center gap-2 text-blue-600 hover:underline transition cursor-pointer"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        Voltar
+      </button>
+
       <h1 className="text-5xl font-bold mb-6 text-center">Escolha seu Plano</h1>
       <p className="text-center text-xl text-gray-600 mb-12 max-w-2xl">
         Encontre o plano perfeito para gerenciar suas finanças e alcançar seus
@@ -128,7 +151,7 @@ export default function PlansPage() {
         </div>
       </section>
 
-      <div className="mt-20 w-[90%] max-w-7xl bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center py-12 rounded-xl">
+      <div className="mt-20 w-full lg:max-w-7xl bg-gradient-to-r px-10 from-blue-600 to-purple-600 text-white text-center py-12 rounded-xl">
         <h2 className="text-2xl font-bold mb-3">
           Pronto para transformar suas finanças?
         </h2>

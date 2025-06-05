@@ -46,7 +46,7 @@ export default function CryptoOverview() {
     <section className="w-full flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <LineChart className="w-6 h-6 text-yellow-600" />
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h2 className="text-lg lg:text-2xl font-semibold text-gray-800">
           Cotações de Criptomoedas
         </h2>
       </div>

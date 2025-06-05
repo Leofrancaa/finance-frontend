@@ -32,71 +32,56 @@ export const InvestmentSummary: React.FC<Props> = ({
   );
 
   return (
-    <div className="w-full overflow-x-auto">
-      <h2 className="text-xl font-bold mb-4 text-black">
+    <div className="w-full">
+      <h2 className="text-md lg:text-xl font-bold mb-4 text-black">
         Investimentos de {MONTHS[month]} {year} – Total:{" "}
         <span className="text-green-600">R$ {totalMonthly.toFixed(2)}</span>
       </h2>
 
-      {filteredMonthly.length === 0 ? (
-        <p className="text-gray-500">
-          Nenhum investimento registrado neste mês.
-        </p>
-      ) : (
-        <table className="min-w-[900px] w-full bg-white border border-neutral-800 rounded-md overflow-hidden text-sm shadow-md text-black">
-          <thead className="bg-gray-100">
-            <tr>
-              {[
-                "Data",
-                "Tipo",
-                "Nome do Ativo",
-                "Valor (R$)",
-                "Criptoativo",
-                "Descrição",
-                "Ações",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="px-4 py-2 border-b text-center font-semibold"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {filteredMonthly.map((inv, index) => (
-              <tr
-                key={inv._id}
-                className={`transition ${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-300"
-                }`}
-              >
-                <td className="px-4 py-2 border-b text-center">
+      <div className="grid gap-4">
+        {filteredMonthly.length === 0 ? (
+          <p className="text-gray-500">
+            Nenhum investimento registrado neste mês.
+          </p>
+        ) : (
+          filteredMonthly.map((inv) => (
+            <div
+              key={inv._id}
+              className="bg-white shadow-sm border border-gray-200 rounded-lg p-4 grid gap-0"
+            >
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-gray-900">{inv.name}</h3>
+                <div className="flex gap-2">
+                  <EditButton onClick={() => onEdit(inv)} />
+                  <DeleteButton onClick={() => inv._id && onDelete(inv._id)} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-y-2 text-sm font-medium text-gray-700">
+                <span>
+                  <strong className="text-gray-800">Valor:</strong> R${" "}
+                  {inv.amount.toFixed(2)}
+                </span>
+                <span>
+                  <strong className="text-gray-800">Data:</strong>{" "}
                   {new Date(inv.date).toLocaleDateString("pt-BR")}
-                </td>
-                <td className="px-4 py-2 border-b text-center">{inv.type}</td>
-                <td className="px-4 py-2 border-b text-center">{inv.name}</td>
-                <td className="px-4 py-2 border-b text-center">
-                  R$ {inv.amount.toFixed(2)}
-                </td>
-                <td className="px-4 py-2 border-b text-center">
+                </span>
+                <span>
+                  <strong className="text-gray-800">Tipo:</strong> {inv.type}
+                </span>
+                <span>
+                  <strong className="text-gray-800">Criptoativo:</strong>{" "}
                   {inv.isCrypto ? "Sim" : "Não"}
-                </td>
-                <td className="px-4 py-2 border-b text-center">
+                </span>
+                <span>
+                  <strong className="text-gray-800">Descrição:</strong>{" "}
                   {inv.description || "-"}
-                </td>
-                <td className="px-4 py-2 border-b text-center">
-                  <div className="flex justify-center gap-2">
-                    <EditButton onClick={() => onEdit(inv)} />
-                    <DeleteButton onClick={() => onDelete(inv._id!)} />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };

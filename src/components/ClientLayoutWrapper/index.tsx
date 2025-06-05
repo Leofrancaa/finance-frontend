@@ -14,9 +14,9 @@ export default function ClientLayoutWrapper({
   );
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden">
+    <div className="flex min-h-screen w-full bg-gray-50">
       {!hideSidebar && <Sidebar />}
-      <div className="flex-1 overflow-y-auto bg-gray-50">{children}</div>
+      <main className="flex-1 overflow-y-auto">{children}</main>
     </div>
   );
 }
