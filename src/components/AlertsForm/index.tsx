@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Button from "@/components/Button";
+import Select from "@/components/Select";
+import Input from "@/components/Input";
 import { useAlertThreshold } from "@/contexts/AlertThresholdContext";
-import { EXPENSE_TYPES } from "@/utils/constants";
+import { useCategory } from "@/contexts/CategoryContext";
 import { useExpenses } from "@/contexts/ExpensesContext";
 
 export default function AlertThresholdForm({
@@ -13,26 +15,39 @@ export default function AlertThresholdForm({
 }) {
   const { thresholds, saveAllThresholds } = useAlertThreshold();
   const { expenses } = useExpenses();
-  const [localThresholds, setLocalThresholds] =
-    useState<Record<string, number>>(thresholds);
+  const { categories } = useCategory(); // ✅ pega as categorias cadastradas
+
+  const [localThresholds, setLocalThresholds] = useState<
+    Record<string, number>
+  >({});
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [limitValue, setLimitValue] = useState("");
 
   useEffect(() => {
     setLocalThresholds(thresholds);
   }, [thresholds]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    category: string
-  ) => {
-    const rawValue = e.target.value;
-    const value = rawValue === "" ? 0 : parseFloat(rawValue);
+  const handleAddThreshold = () => {
+    const trimmed = selectedCategory.trim();
+    const parsed = parseFloat(limitValue);
 
-    if (!isNaN(value) && value >= 0) {
-      setLocalThresholds((prev) => ({ ...prev, [category]: value }));
-    } else if (rawValue === "") {
-      setLocalThresholds((prev) => ({ ...prev, [category]: 0 }));
-    }
+    if (!trimmed || isNaN(parsed) || parsed < 0 || localThresholds[trimmed])
+      return;
+
+    setLocalThresholds((prev) => ({
+      ...prev,
+      [trimmed]: parsed,
+    }));
+
+    setSelectedCategory("");
+    setLimitValue("");
+  };
+
+  const handleDeleteThreshold = (category: string) => {
+    const updated = { ...localThresholds };
+    delete updated[category];
+    setLocalThresholds(updated);
   };
 
   const handleSave = async () => {
@@ -43,15 +58,11 @@ export default function AlertThresholdForm({
       onSaveSuccess?.();
     } catch (error) {
       console.error("Erro ao salvar limites:", error);
+      alert("Erro ao salvar limites.");
     } finally {
       setIsSaving(false);
     }
   };
-
-  const sumOfLimits = Object.values(localThresholds).reduce(
-    (acc, cur) => acc + (isNaN(cur) ? 0 : cur),
-    0
-  );
 
   const getCurrentSpending = (category: string) => {
     return expenses
@@ -59,14 +70,25 @@ export default function AlertThresholdForm({
       .reduce((acc, cur) => acc + Number(cur.amount || 0), 0);
   };
 
+  // ✅ Gera o Select com base nas categorias cadastradas no CategoryManagerForm
+  const categoryOptions = categories
+    .map((c) => c.name)
+    .filter((name) => !Object.keys(localThresholds).includes(name))
+    .map((name) => ({ label: name, value: name }));
+
+  const sumOfLimits = Object.values(localThresholds).reduce(
+    (acc, cur) => acc + (isNaN(cur) ? 0 : cur),
+    0
+  );
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md max-w-screen-xl w-full mx-auto">
-      <div className="mb-6  relative">
+      <div className="mb-6 relative">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Cadastro de Limite de Gastos
         </h2>
         <p className="text-gray-600">
-          Defina limites mensais para cada categoria de despesa
+          Selecione uma categoria cadastrada para definir um limite mensal
         </p>
         {onSaveSuccess && (
           <button
@@ -80,56 +102,81 @@ export default function AlertThresholdForm({
       </div>
 
       <form className="space-y-6">
-        <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {EXPENSE_TYPES.map((type) => (
-            <div key={type} className="mb-4 last:mb-0">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor={`limit-${type}`}
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  {type}
-                </label>
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  Gasto atual: R$ {getCurrentSpending(type).toFixed(2)}
-                </span>
-              </div>
-              <div className="relative rounded-md shadow-sm">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
-                  <span className="text-gray-500 sm:text-sm">R$</span>
-                </div>
-                <input
-                  type="number"
-                  id={`limit-${type}`}
-                  name={`limit-${type}`}
-                  placeholder="0,00"
-                  className="block w-full pl-12 pr-4 py-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                  value={
-                    localThresholds[type] === 0
-                      ? ""
-                      : localThresholds[type] ?? ""
-                  }
-                  onChange={(e) => handleChange(e, type)}
-                  disabled={isSaving}
-                />
-              </div>
-              <div className="mt-1">
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div
-                    className="bg-blue-600 h-2.5 rounded-full"
-                    style={{
-                      width: `${
-                        localThresholds[type] > 0
-                          ? Math.min(localThresholds[type] / 1000, 1) * 100
-                          : 0
-                      }%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <Select
+            id="category"
+            label="Tipo de despesa"
+            options={categoryOptions}
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            placeholder="Selecione uma categoria"
+          />
+          <Input
+            id="limit"
+            label="Limite (R$)"
+            type="number"
+            value={limitValue}
+            onChange={(e) => setLimitValue(e.target.value)}
+            placeholder="0,00"
+          />
+          <Button type="button" onClick={handleAddThreshold}>
+            Adicionar
+          </Button>
         </div>
+
+        {Object.entries(localThresholds).length > 0 && (
+          <div className="bg-gray-50 p-5 rounded-lg border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {Object.entries(localThresholds).map(([type, value]) => {
+              const current = getCurrentSpending(type);
+              const percentage =
+                value > 0 ? Math.min(current / value, 1) * 100 : 0;
+
+              return (
+                <div key={type}>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-gray-700 mb-1">
+                      {type}
+                    </label>
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      Gasto atual: R$ {current.toFixed(2)}
+                    </span>
+                  </div>
+
+                  <input
+                    type="number"
+                    value={value}
+                    onChange={(e) => {
+                      const v = parseFloat(e.target.value);
+                      if (!isNaN(v) && v >= 0) {
+                        setLocalThresholds((prev) => ({
+                          ...prev,
+                          [type]: v,
+                        }));
+                      }
+                    }}
+                    className="w-full mt-1 pl-3 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteThreshold(type)}
+                      className="text-xs text-red-500 hover:underline"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         <div className="flex items-center justify-between bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
           <div>
@@ -150,20 +197,6 @@ export default function AlertThresholdForm({
             fullWidth
             onClick={handleSave}
             disabled={isSaving}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            }
           >
             {isSaving ? "Salvando..." : "Salvar limites"}
           </Button>

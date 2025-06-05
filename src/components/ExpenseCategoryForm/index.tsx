@@ -1,9 +1,9 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
-import Select from "@/components/Select";
-import Checkbox from "@/components/Checkbox";
+import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { useCategory, Category } from "@/contexts/CategoryContext";
-import { DEFAULT_CATEGORIES } from "@/utils/constants";
 
 export default function CategoryManagerForm({
   onSaveSuccess,
@@ -13,6 +13,7 @@ export default function CategoryManagerForm({
   const { categories, saveUserCategories, isLoading } = useCategory();
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [currentCategory, setCurrentCategory] = useState<string>("");
+  const [newSub, setNewSub] = useState<string>("");
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
     []
   );
@@ -21,32 +22,37 @@ export default function CategoryManagerForm({
     setSelectedCategories(categories);
   }, [categories]);
 
-  const availableSubcategories =
-    DEFAULT_CATEGORIES.find((cat) => cat.name === currentCategory)
-      ?.subcategories || [];
+  const handleAddSubcategory = () => {
+    if (!newSub.trim()) return;
+    if (!selectedSubcategories.includes(newSub.trim())) {
+      setSelectedSubcategories([...selectedSubcategories, newSub.trim()]);
+      setNewSub("");
+    }
+  };
+
+  const handleRemoveSubcategory = (sub: string) => {
+    setSelectedSubcategories((prev) => prev.filter((s) => s !== sub));
+  };
 
   const handleAddCategory = () => {
-    if (!currentCategory) return;
+    if (!currentCategory.trim()) return;
 
     const exists = selectedCategories.find(
-      (cat) => cat.name === currentCategory
-    );
-    const fullCategory = DEFAULT_CATEGORIES.find(
-      (cat) => cat.name === currentCategory
+      (cat) => cat.name === currentCategory.trim()
     );
 
-    if (!exists && fullCategory) {
+    if (!exists) {
       setSelectedCategories([
         ...selectedCategories,
         {
-          name: currentCategory,
+          name: currentCategory.trim(),
           subcategories: selectedSubcategories,
         },
       ]);
-    } else if (exists) {
+    } else {
       setSelectedCategories(
         selectedCategories.map((cat) =>
-          cat.name === currentCategory
+          cat.name === currentCategory.trim()
             ? { ...cat, subcategories: selectedSubcategories }
             : cat
         )
@@ -55,12 +61,6 @@ export default function CategoryManagerForm({
 
     setCurrentCategory("");
     setSelectedSubcategories([]);
-  };
-
-  const toggleSubcategory = (sub: string) => {
-    setSelectedSubcategories((prev) =>
-      prev.includes(sub) ? prev.filter((s) => s !== sub) : [...prev, sub]
-    );
   };
 
   const handleDeleteCategory = (name: string) => {
@@ -75,11 +75,6 @@ export default function CategoryManagerForm({
     onSaveSuccess?.();
   };
 
-  const categoryOptions = DEFAULT_CATEGORIES.map((cat) => ({
-    value: cat.name,
-    label: cat.name,
-  }));
-
   if (isLoading) return <p>Carregando categorias...</p>;
 
   return (
@@ -89,7 +84,7 @@ export default function CategoryManagerForm({
           Cadastro de Categorias de Despesa
         </h2>
         <p className="text-gray-600">
-          Configure as categorias para suas despesas
+          Digite o nome da categoria e suas subcategorias manualmente
         </p>
         {onSaveSuccess && (
           <button
@@ -103,38 +98,49 @@ export default function CategoryManagerForm({
       </div>
 
       <form className="space-y-6">
-        <Select
+        <Input
           id="category"
-          label="Tipo"
-          options={categoryOptions}
-          required
+          label="Categoria"
           value={currentCategory}
-          placeholder="Selecione uma opção"
-          onChange={(e) => {
-            setCurrentCategory(e.target.value);
-            setSelectedSubcategories(
-              selectedCategories.find((c) => c.name === e.target.value)
-                ?.subcategories || []
-            );
-          }}
+          onChange={(e) => setCurrentCategory(e.target.value)}
+          placeholder="Digite o nome da categoria"
+          required
         />
 
-        {currentCategory && availableSubcategories.length > 0 && (
-          <div className="bg-gray-50 p-4 rounded-md">
-            <h3 className="text-md font-medium text-gray-700 mb-3">Subtipos</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {availableSubcategories.map((sub) => (
-                <Checkbox
-                  key={sub}
-                  id={`sub-${sub}`}
-                  label={sub}
-                  checked={selectedSubcategories.includes(sub)}
-                  onChange={() => toggleSubcategory(sub)}
-                />
-              ))}
-            </div>
+        <div className="bg-gray-50 p-4 rounded-md">
+          <h3 className="text-md font-medium text-gray-700 mb-3">
+            Subcategorias
+          </h3>
+          <div className="flex gap-2 mb-3">
+            <Input
+              id="subcategoria"
+              label="Nova subcategoria"
+              value={newSub}
+              onChange={(e) => setNewSub(e.target.value)}
+              placeholder="Digite uma subcategoria"
+            />
+            <Button type="button" onClick={handleAddSubcategory}>
+              Adicionar
+            </Button>
           </div>
-        )}
+
+          <div className="flex flex-wrap gap-2">
+            {selectedSubcategories.map((sub) => (
+              <div
+                key={sub}
+                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1 text-sm"
+              >
+                {sub}
+                <button
+                  onClick={() => handleRemoveSubcategory(sub)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="flex justify-end">
           <Button variant="secondary" onClick={handleAddCategory} type="button">

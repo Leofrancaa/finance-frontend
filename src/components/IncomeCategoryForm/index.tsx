@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Select from "@/components/Select";
+import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { useCategory } from "@/contexts/CategoryContext";
-import { INCOME_TYPES } from "@/utils/constants";
 
 export default function IncomeCategoryManagerForm({
   onSaveSuccess,
@@ -21,9 +20,9 @@ export default function IncomeCategoryManagerForm({
   }, [incomeCategories]);
 
   const handleAddCategory = () => {
-    if (!currentCategory || selectedCategories.includes(currentCategory))
-      return;
-    setSelectedCategories([...selectedCategories, currentCategory]);
+    const trimmed = currentCategory.trim();
+    if (!trimmed || selectedCategories.includes(trimmed)) return;
+    setSelectedCategories([...selectedCategories, trimmed]);
     setCurrentCategory("");
   };
 
@@ -37,11 +36,6 @@ export default function IncomeCategoryManagerForm({
     onSaveSuccess?.();
   };
 
-  const categoryOptions = INCOME_TYPES.map((name) => ({
-    value: name,
-    label: name,
-  }));
-
   if (isLoading) return <p>Carregando categorias...</p>;
 
   return (
@@ -50,9 +44,7 @@ export default function IncomeCategoryManagerForm({
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           Cadastro de Categorias de Receita
         </h2>
-        <p className="text-gray-600">
-          Configure as categorias para suas receitas
-        </p>
+        <p className="text-gray-600">Digite suas categorias personalizadas</p>
         {onSaveSuccess && (
           <button
             type="button"
@@ -65,14 +57,13 @@ export default function IncomeCategoryManagerForm({
       </div>
 
       <form className="space-y-6">
-        <Select
+        <Input
           id="income-category"
-          label="Tipo"
-          options={categoryOptions}
-          required
+          label="Nova categoria de receita"
           value={currentCategory}
-          placeholder="Selecione uma opção"
           onChange={(e) => setCurrentCategory(e.target.value)}
+          placeholder="Ex: Freelance, Venda de produtos, etc."
+          required
         />
 
         <div className="flex justify-end">
@@ -87,7 +78,7 @@ export default function IncomeCategoryManagerForm({
           </h3>
           {selectedCategories.length === 0 ? (
             <p className="text-gray-500 text-sm">
-              Nenhuma categoria selecionada.
+              Nenhuma categoria adicionada.
             </p>
           ) : (
             <div className="space-y-2">

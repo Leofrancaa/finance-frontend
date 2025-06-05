@@ -12,6 +12,7 @@ import ExpensesCard from "../components/ExpensesCard";
 
 import IncomesCard from "../components/IncomesCard";
 import CryptoInvestmentCard from "../components/CryptoInvestmentCard";
+import BalanceCard from "../components/BalanceCard";
 
 export default function HomePage() {
   const { user } = useUser();
@@ -43,6 +44,7 @@ export default function HomePage() {
             <div className="flex justify-between w-full gap-8">
               <ExpensesCard></ExpensesCard>
               <IncomesCard></IncomesCard>
+              <BalanceCard></BalanceCard>
               <CryptoInvestmentCard
                 totalInvestido={0}
                 percentChange={0}
