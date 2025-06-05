@@ -37,9 +37,15 @@ const CreditCardContext = createContext<CreditCardContextType | undefined>(
 export const CreditCardProvider = ({ children }: { children: ReactNode }) => {
   const [cards, setCards] = useState<CreditCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const userId = getUserIdFromToken();
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // ✅ Memoiza a função para evitar recriação a cada render
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const id = getUserIdFromToken();
+      setUserId(id ?? null);
+    }
+  }, []);
+
   const fetchCards = useCallback(async () => {
     if (!userId) return;
     setIsLoading(true);
@@ -63,8 +69,10 @@ export const CreditCardProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    fetchCards();
-  }, [fetchCards]); // ✅ dependência agora incluída corretamente
+    if (userId) {
+      fetchCards();
+    }
+  }, [userId, fetchCards]);
 
   return (
     <CreditCardContext.Provider
