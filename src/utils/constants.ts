@@ -1,35 +1,4 @@
-import { Category } from "@/contexts/CategoryContext";
 
-export const DEFAULT_CATEGORIES: Category[] = [
-    {
-        name: "alimentação",
-        subcategories: ["restaurante", "mercado", "delivery"],
-    },
-    {
-        name: "educação",
-        subcategories: ["curso", "material didático", "livros"],
-    },
-    {
-        name: "lazer",
-        subcategories: ["cinema", "shows", "jogos", "viagens"],
-    },
-    {
-        name: "assinatura",
-        subcategories: ["Netflix", "Prime Video", "Spotify", "Disney+"],
-    },
-    {
-        name: "moradia",
-        subcategories: ["aluguel", "condomínio", "energia", "água", "internet"],
-    },
-    {
-        name: "transporte",
-        subcategories: ["uber", "ônibus", "gasolina", "99", "buser"],
-    },
-    {
-        name: "outros",
-        subcategories: [],
-    },
-];
 
 
 // Categorias de despesas
