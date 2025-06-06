@@ -9,7 +9,9 @@ export function generateInstallments(
         ? parseInt(data.installments)
         : 1;
 
-    const baseDate = new Date(selectedYear, selectedMonth, parseInt(data.day));
+    const parsedDate = new Date(data.date); // ✅ usa data string
+    const day = parsedDate.getDate();        // ✅ extrai o dia
+    const baseDate = new Date(selectedYear, selectedMonth, day);
     const valuePerInstallment = parseFloat(data.amount) / totalInstallments;
 
     return Array.from({ length: totalInstallments }, (_, i) => {
@@ -17,10 +19,10 @@ export function generateInstallments(
         installmentDate.setMonth(baseDate.getMonth() + i);
 
         return {
-            _id: `${data.type}-${installmentDate.getTime()}-${i}`, // Generate a unique _id
+            _id: `${data.type}-${installmentDate.getTime()}-${i}`,
             type: data.type,
             date: installmentDate.toISOString(),
-            day: installmentDate.getDate(), // Extract the day from the date
+            day: installmentDate.getDate(),
             amount: parseFloat(valuePerInstallment.toFixed(2)),
             paymentMethod: data.paymentMethod,
             installments: totalInstallments,
