@@ -17,10 +17,9 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
   const { incomes, deleteIncome } = useIncomes();
 
   const filtered = incomes.filter((income) => {
-    const date = new Date(income.date);
-    return (
-      date.getFullYear() === selectedYear && date.getMonth() === selectedMonth
-    );
+    if (!income.date) return false;
+    const [year, month] = income.date.split("-").map(Number);
+    return year === selectedYear && month - 1 === selectedMonth;
   });
 
   const total = filtered.reduce((sum, income) => sum + income.amount, 0);
@@ -57,7 +56,7 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
                 </div>
               </div>
 
-              {/* Linha 2: Dados em linha */}
+              {/* Linha 2: Dados */}
               <div className="grid grid-cols-1 lg:flex lg:flex-wrap gap-x-8 justify-between text-gray-800 text-sm font-semibold w-[85%] mb-2">
                 <span className="text-gray-500">
                   <strong className="text-gray-800">Categoria:</strong>{" "}
@@ -69,7 +68,7 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
                 </span>
                 <span className="text-gray-500">
                   <strong className="text-gray-800">Data:</strong>{" "}
-                  {new Date(income.date).toLocaleDateString("pt-BR")}
+                  {income.date.split("-").reverse().join("/")}
                 </span>
                 <span className="text-gray-500">
                   <strong className="text-gray-800">Fonte:</strong>{" "}

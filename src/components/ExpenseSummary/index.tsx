@@ -143,8 +143,9 @@ export const ExpenseSummary: React.FC<Props> = ({
                   </span>
                   <span>
                     <strong className="text-gray-800">Data:</strong>{" "}
-                    {new Date(exp.date).toLocaleDateString("pt-BR")}
+                    {exp.date.split("-").reverse().join("/")}
                   </span>
+
                   <span>
                     <strong className="text-gray-800">Pagamento:</strong>{" "}
                     {exp.paymentMethod}

@@ -1,8 +1,14 @@
 interface DeleteButtonProps {
   onClick: () => void;
+  width?: number; // ex: 6 para w-6
+  height?: number; // ex: 6 para h-6
 }
 
-export default function DeleteButton({ onClick }: DeleteButtonProps) {
+export default function DeleteButton({
+  onClick,
+  width = 7,
+  height = 7,
+}: DeleteButtonProps) {
   return (
     <button
       onClick={onClick}
@@ -10,7 +16,14 @@ export default function DeleteButton({ onClick }: DeleteButtonProps) {
       className="group relative p-2 bg-transparent border-none cursor-pointer text-base transition-transform duration-200 ease-in-out"
     >
       <svg
-        className="w-7 h-7 lg:w-8 lg:h-8 transition-transform duration-[300ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)] overflow-visible group-hover:scale-[1.08] group-hover:rotate-[3deg] group-active:scale-[0.96] group-active:rotate-[-1deg]"
+        className={`
+          w-${width} h-${height}
+          lg:w-${width + 1} lg:h-${height + 1}
+          transition-transform duration-[300ms] ease-[cubic-bezier(0.34,1.56,0.64,1)]
+          drop-shadow-[0_2px_4px_rgba(0,0,0,0.1)]
+          overflow-visible group-hover:scale-[1.08] group-hover:rotate-[3deg]
+          group-active:scale-[0.96] group-active:rotate-[-1deg]
+        `}
         viewBox="0 -10 64 74"
         xmlns="http://www.w3.org/2000/svg"
       >

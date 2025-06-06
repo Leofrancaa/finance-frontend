@@ -52,7 +52,7 @@ export default function InvestimentosPage() {
   };
 
   return (
-    <main className="w-full bg-gray-50 text-black px-6 py-8 flex flex-col items-center gap-4 h-screen">
+    <main className="w-full bg-gray-50 text-black px-6 py-8 flex flex-col items-center gap-4 min-h-screen">
       <div className="flex flex-col self-start mb-2">
         <h1 className="text-xl lg:text-4xl font-extrabold mt-12 lg:mt-2">
           Investimentos
@@ -91,7 +91,7 @@ export default function InvestimentosPage() {
         />
       </Modal>
 
-      <div className="w-full flex flex-col lg:flex lg:flex-row items-center gap-6">
+      <div className="w-full flex flex-col lg:grid lg:grid-cols-2 3xl:grid-cols-3 items-center gap-6">
         <MacroEconomyCard></MacroEconomyCard>
         <TopStockCard></TopStockCard>
         <InvestmentInfoPanel></InvestmentInfoPanel>

@@ -59,7 +59,7 @@ export default function Sidebar() {
       <aside
         className={`fixed top-0 left-0 z-40 h-full bg-white border-r shadow-md px-6 py-8 flex flex-col w-[250px] transition-transform duration-300
         ${isOpen ? "translate-x-0" : "-translate-x-full"} 
-        md:translate-x-0 md:static md:w-[14vw] md:shrink-0`}
+        md:translate-x-0 md:static md:w-[17vw] lg::w-[14vw] md:shrink-0`}
       >
         {/* CABEÇALHO MOBILE DENTRO DO MENU */}
         <div className="flex justify-between items-center md:hidden mb-4">

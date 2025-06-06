@@ -1,10 +1,11 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Input from "@/components/Input";
 import Select from "@/components/Select";
 import Checkbox from "@/components/Checkbox";
 import Button from "@/components/Button";
 import { Expense } from "@/interfaces/Expense";
-import { useDate } from "@/contexts/DateContext";
 import { useCategory } from "@/contexts/CategoryContext";
 import { useCreditCards } from "@/contexts/CreditCardContext";
 import { useExpenses } from "@/contexts/ExpensesContext";
@@ -18,7 +19,6 @@ import {
   postRecurringExpense,
 } from "@/services/recurringService";
 import { getUserIdFromToken } from "@/utils/auth";
-import { MONTHS } from "@/utils/constants";
 
 interface ExpenseFormProps {
   expenseToEdit?: Expense | null;
@@ -31,13 +31,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   onCancelEdit,
   onExpenseUpdated,
 }) => {
-  const { selectedMonth, setMonth, selectedYear } = useDate();
   const { categories } = useCategory();
   const { cards: creditCards } = useCreditCards();
   const { addExpense, updateExpense } = useExpenses();
 
   const [formData, setFormData] = useState({
-    day: "",
+    date: "",
     type: "",
     subtype: "",
     amount: "",
@@ -52,8 +51,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   useEffect(() => {
     if (expenseToEdit) {
       const expenseDate = new Date(expenseToEdit.date);
+      const isoDate = expenseDate.toISOString().split("T")[0];
       setFormData({
-        day: expenseDate.getDate().toString(),
+        date: isoDate,
         type: expenseToEdit.type || "",
         subtype: expenseToEdit.subcategory || "",
         amount: expenseToEdit.amount.toString(),
@@ -63,9 +63,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         description: expenseToEdit.note || "",
         isFixed: expenseToEdit.fixed || false,
       });
-      setMonth(expenseDate.getMonth());
     }
-  }, [expenseToEdit, setMonth]);
+  }, [expenseToEdit]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -89,9 +88,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    const { type, amount, day, paymentType } = formData;
+    const { type, amount, date, paymentType } = formData;
 
-    if (!type || !amount || !day || !paymentType) {
+    if (!type || !amount || !date || !paymentType) {
       alert("Preencha todos os campos obrigatórios.");
       setIsSubmitting(false);
       return;
@@ -99,22 +98,19 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
 
     try {
       const userId = getUserIdFromToken();
+      const parsedDate = new Date(formData.date);
 
-      const expenseData = transformAddExpenseData(
-        {
-          type: formData.type,
-          amount: formData.amount,
-          day: formData.day,
-          note: formData.description,
-          paymentMethod: formData.paymentType,
-          subcategory: formData.subtype,
-          fixed: formData.isFixed,
-          installments: formData.installments,
-          creditCardId: formData.creditCard,
-        },
-        selectedYear,
-        selectedMonth
-      );
+      const expenseData = transformAddExpenseData({
+        type: formData.type,
+        amount: formData.amount,
+        date: formData.date,
+        note: formData.description,
+        paymentMethod: formData.paymentType,
+        subcategory: formData.subtype,
+        fixed: formData.isFixed,
+        installments: formData.installments,
+        creditCardId: formData.creditCard,
+      });
 
       const payload = {
         ...expenseData,
@@ -122,9 +118,8 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
       } as Expense & { userId?: string };
 
       if (expenseToEdit) {
-        if (!expenseToEdit._id) throw new Error("ID não encontrado.");
         const updated = await updateExpenseInAPI(
-          expenseToEdit._id,
+          expenseToEdit._id!,
           expenseData
         );
         updateExpense(updated);
@@ -133,32 +128,33 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
         if (formData.isFixed) {
           const recurring = buildRecurringPayload(
             {
-              ...formData,
-              note: formData.description,
+              type: formData.type,
+              amount: formData.amount,
               paymentMethod: formData.paymentType,
+              installments: formData.installments,
+              note: formData.description,
+              fixed: formData.isFixed,
               subcategory: formData.subtype,
               creditCardId: formData.creditCard,
+              date: formData.date,
             },
-            selectedYear,
-            selectedMonth
+            parsedDate.getFullYear(),
+            parsedDate.getMonth()
           );
 
-          await postRecurringExpense({
-            ...recurring,
-            fixed: true,
-          });
+          await postRecurringExpense({ ...recurring, fixed: true });
 
-          for (let m = selectedMonth; m < 12; m++) {
+          for (let m = parsedDate.getMonth(); m < 12; m++) {
             const newExpense = {
               ...expenseData,
-              date: new Date(
-                selectedYear,
-                m,
-                parseInt(formData.day)
-              ).toISOString(),
+              date: `${parsedDate.getFullYear()}-${String(m + 1).padStart(
+                2,
+                "0"
+              )}-${String(parsedDate.getDate()).padStart(2, "0")}`,
               fixed: true,
               userId,
             } as Expense & { userId?: string };
+
             const saved = await postExpenseToAPI(newExpense);
             addExpense(saved);
           }
@@ -166,11 +162,12 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
           const saved = await postExpenseToAPI(payload);
           addExpense(saved);
         }
+
         alert("Despesa adicionada com sucesso!");
       }
 
       setFormData({
-        day: "",
+        date: "",
         type: "",
         subtype: "",
         amount: "",
@@ -199,239 +196,115 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   ];
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-      <div className="mb-6 relative">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Cadastro de Despesas
-        </h2>
-        <p className="text-gray-600">Preencha os dados da sua despesa</p>
-        {onCancelEdit && (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex justify-center overflow-y-auto p-4">
+      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-3xl shadow-lg my-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Nova Despesa</h2>
           <button
-            type="button"
             onClick={onCancelEdit}
-            className="absolute top-0 right-0 text-3xl text-gray-500 hover:text-black cursor-pointer"
+            className="text-gray-500 hover:text-black text-2xl leading-none"
+            type="button"
           >
             &times;
           </button>
-        )}
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4 relative">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            id="month"
-            label="Mês"
-            options={MONTHS.map((label, index) => ({
-              value: index.toString(),
-              label,
-            }))}
-            required
-            value={selectedMonth.toString()}
-            onChange={(e) => setMonth(Number(e.target.value))}
-          />
-          <Input
-            id="day"
-            label="Dia do mês"
-            type="number"
-            placeholder="1-31"
-            required
-            value={formData.day}
-            onChange={handleChange}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-              </svg>
-            }
-          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            id="type"
-            label="Tipo"
-            options={categories.map((cat) => ({
-              value: cat.name,
-              label: cat.name,
-            }))}
-            required
-            value={formData.type}
-            onChange={handleChange}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M2 5a2 2 0 012-2h3a1 1 0 010 2H4v10h3a1 1 0 110 2H4a2 2 0 01-2-2V5zm11-1a1 1 0 000 2h3v10h-3a1 1 0 100 2h3a2 2 0 002-2V5a2 2 0 00-2-2h-3z" />
-              </svg>
-            }
-          />
-          <Select
-            id="subtype"
-            label="Subtipo"
-            options={
-              categories
-                .find((cat) => cat.name === formData.type)
-                ?.subcategories.map((s) => ({ value: s, label: s })) || []
-            }
-            value={formData.subtype}
-            onChange={handleChange}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M4 3a1 1 0 00-1 1v2a1 1 0 102 0V5h10v1a1 1 0 102 0V4a1 1 0 00-1-1H4zm0 6a1 1 0 00-1 1v2a1 1 0 102 0v-1h10v1a1 1 0 102 0v-2a1 1 0 00-1-1H4zm-1 6a1 1 0 100 2h14a1 1 0 100-2H3z" />
-              </svg>
-            }
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              id="amount"
+              label="Valor *"
+              type="number"
+              required
+              value={formData.amount}
+              onChange={handleChange}
+            />
+            <Select
+              id="type"
+              label="Categoria *"
+              required
+              options={categories.map((cat) => ({
+                value: cat.name,
+                label: cat.name,
+              }))}
+              value={formData.type}
+              onChange={handleChange}
+            />
+            <Select
+              id="subtype"
+              label="Subcategoria"
+              options={
+                categories
+                  .find((cat) => cat.name === formData.type)
+                  ?.subcategories.map((s) => ({
+                    value: s,
+                    label: s,
+                  })) || []
+              }
+              value={formData.subtype}
+              onChange={handleChange}
+            />
+            <Input
+              id="date"
+              label="Data *"
+              type="date"
+              required
+              value={formData.date}
+              onChange={handleChange}
+            />
+            <Select
+              id="paymentType"
+              label="Tipo de Pagamento *"
+              required
+              options={paymentTypeOptions}
+              value={formData.paymentType}
+              onChange={handleChange}
+            />
+            <Select
+              id="creditCard"
+              label="Cartão de crédito"
+              options={creditCards.map((card) => ({
+                value: card._id,
+                label: `${card.name} (****${card.lastDigits})`,
+              }))}
+              value={formData.creditCard}
+              onChange={handleChange}
+            />
+            <Input
+              id="installments"
+              label="Parcelas"
+              type="number"
+              value={formData.installments}
+              onChange={handleChange}
+            />
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input
-            id="amount"
-            label="Valor (R$)"
-            type="number"
-            placeholder="0,00"
-            required
-            value={formData.amount}
-            onChange={handleChange}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            }
-          />
-          <Select
-            id="paymentType"
-            label="Tipo de pagamento"
-            options={paymentTypeOptions}
-            required
-            value={formData.paymentType}
-            onChange={handleChange}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zm14 4H2v6a2 2 0 002 2h12a2 2 0 002-2V8z" />
-              </svg>
-            }
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            id="creditCard"
-            label="Cartão de crédito"
-            options={creditCards.map((card) => ({
-              value: card._id,
-              label: `${card.name} (****${card.lastDigits})`,
-            }))}
-            value={formData.creditCard}
-            onChange={handleChange}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2H2V5zm0 4h16v6a2 2 0 01-2 2H4a2 2 0 01-2-2V9zm2 2a1 1 0 000 2h2a1 1 0 100-2H4z" />
-              </svg>
-            }
-          />
-          <Input
-            id="installments"
-            label="Quantidade de parcelas"
-            type="number"
-            placeholder="1"
-            value={formData.installments}
-            onChange={handleChange}
-            icon={
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5z" />
-                <path d="M11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z" />
-              </svg>
-            }
-          />
-        </div>
+          <div className="mt-2">
+            <Input
+              id="observation"
+              label="Observação"
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </div>
 
-        <Input
-          id="description"
-          label="Descrição"
-          placeholder="Descreva sua despesa"
-          value={formData.description}
-          onChange={handleChange}
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z"
-                clipRule="evenodd"
-              />
-            </svg>
-          }
-        />
+          <Checkbox
+            id="isFixed"
+            label="Despesa fixa"
+            checked={formData.isFixed}
+            onChange={handleChange}
+          />
 
-        <Checkbox
-          id="isFixed"
-          label="É um gasto fixo?"
-          checked={formData.isFixed}
-          onChange={handleChange}
-        />
-
-        <div className="pt-4 flex flex-col md:flex-row gap-4">
-          <Button
-            type="submit"
-            variant="primary"
-            fullWidth
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Salvando..." : "Salvar despesa"}
-          </Button>
-
-          {expenseToEdit && (
-            <Button
-              type="button"
-              variant="outline"
-              fullWidth
-              onClick={onCancelEdit}
-            >
-              Cancelar edição
+          <div className="flex justify-end gap-4 pt-4">
+            <Button type="button" variant="outline" onClick={onCancelEdit}>
+              Cancelar
             </Button>
-          )}
-        </div>
-      </form>
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+              {isSubmitting ? "Salvando..." : "Adicionar"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

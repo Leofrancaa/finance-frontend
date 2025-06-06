@@ -7,6 +7,7 @@ import { IncomesProvider } from "@/contexts/IncomesContext";
 import { UserProvider } from "@/contexts/UserContext";
 import ClientLayoutWrapper from "@/components/ClientLayoutWrapper";
 import { InvestmentProvider } from "@/contexts/InvestmentContext";
+import { AlertThresholdProvider } from "@/contexts/AlertThresholdContext";
 
 // Fonte principal: Manrope
 const manrope = Manrope({
@@ -27,13 +28,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={`${manrope.variable}`}>
-      <body className="antialiased bg-gray-100 min-h-screen font-sans">
+      <body className="antialiased bg-gray-50 min-h-screen font-sans">
         <UserProvider>
           <DateProvider>
             <ExpensesProvider>
               <IncomesProvider>
                 <InvestmentProvider>
-                  <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+                  <AlertThresholdProvider>
+                    <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+                  </AlertThresholdProvider>
                 </InvestmentProvider>
               </IncomesProvider>
             </ExpensesProvider>

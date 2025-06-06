@@ -22,8 +22,8 @@ export const InvestmentSummary: React.FC<Props> = ({
 }) => {
   const filteredMonthly = investments.filter((inv) => {
     if (!inv.date) return false;
-    const d = new Date(inv.date);
-    return d.getFullYear() === year && d.getMonth() === month;
+    const date = new Date(inv.date);
+    return date.getFullYear() === year && date.getMonth() === month;
   });
 
   const totalMonthly = filteredMonthly.reduce(
@@ -64,7 +64,9 @@ export const InvestmentSummary: React.FC<Props> = ({
                 </span>
                 <span>
                   <strong className="text-gray-800">Data:</strong>{" "}
-                  {new Date(inv.date).toLocaleDateString("pt-BR")}
+                  {new Date(inv.date).toLocaleDateString("pt-BR", {
+                    timeZone: "UTC",
+                  })}
                 </span>
                 <span>
                   <strong className="text-gray-800">Tipo:</strong> {inv.type}

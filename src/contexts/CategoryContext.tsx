@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { getCategories, saveCategories } from "@/services/categoryService";
+import {
+  getCategories,
+  saveCategories,
+  updateCategoryAPI,
+  deleteCategoryAPI,
+} from "@/services/categoryService"; // ✅ inclui PUT e DELETE
 import {
   getIncomeCategories,
   saveIncomeCategories,
@@ -11,12 +16,15 @@ import { getUserIdFromToken } from "@/utils/auth";
 export interface Category {
   name: string;
   subcategories: string[];
+  color: string;
 }
 
 interface CategoryContextType {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
   saveUserCategories: (categories: Category[]) => Promise<void>;
+  updateCategory: (updatedCategory: Category) => Promise<void>;
+  removeCategory: (name: string) => Promise<void>;
   isLoading: boolean;
 
   incomeCategories: string[];
@@ -72,6 +80,26 @@ export const CategoryProvider = ({
     setCategories(updatedCategories);
   };
 
+  const updateCategory = async (updatedCategory: Category) => {
+    const userId = getUserIdFromToken();
+    if (!userId) return;
+
+    await updateCategoryAPI(userId, updatedCategory);
+    setCategories((prev) =>
+      prev.map((cat) =>
+        cat.name === updatedCategory.name ? updatedCategory : cat
+      )
+    );
+  };
+
+  const removeCategory = async (categoryName: string) => {
+    const userId = getUserIdFromToken();
+    if (!userId) return;
+
+    await deleteCategoryAPI(userId, categoryName);
+    setCategories((prev) => prev.filter((cat) => cat.name !== categoryName));
+  };
+
   const saveUserIncomeCategories = async (
     updatedIncomeCategories: string[]
   ) => {
@@ -88,8 +116,9 @@ export const CategoryProvider = ({
         categories,
         setCategories,
         saveUserCategories,
+        updateCategory, // ✅ novo
+        removeCategory, // ✅ novo
         isLoading,
-
         incomeCategories,
         setIncomeCategories,
         saveUserIncomeCategories,

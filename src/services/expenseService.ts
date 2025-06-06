@@ -7,24 +7,22 @@ type ExpenseToSend = Omit<Expense, "_id">;
 
 // 🆕 Transforma o dado de AddExpenseData para ExpenseToSend
 export function transformAddExpenseData(
-    data: AddExpenseData,
-    selectedYear: number,
-    selectedMonth: number
+    data: AddExpenseData
 ): ExpenseToSend {
-    const date = new Date(selectedYear, selectedMonth, Number(data.day));
+    const parsedDate = new Date(data.date);
 
     return {
         ...data,
-        date: date.toISOString(),
+        date: data.date,
         amount: Number(data.amount),
         paymentMethod: data.paymentMethod || "default",
         fixed: !!data.fixed,
         installments: data.installments ? Number(data.installments) : undefined,
-        day: Number(data.day),
+        day: parsedDate.getDate(),
         creditCardId:
             data.paymentMethod === "cartão de crédito" && data.creditCardId
                 ? data.creditCardId
-                : null, // <- limpa se não for cartão
+                : null,
     };
 }
 

@@ -32,7 +32,7 @@ export default function HomePage() {
     <AlertThresholdProvider>
       <CreditCardProvider>
         <CategoryProvider>
-          <div className="w-full overflow-x-hidden bg-gray-100 text-black py-6 px-4 md:px-10 flex flex-col items-center gap-6 min-h-screen">
+          <div className="w-full overflow-x-hidden bg-gray-50 text-black py-6 px-4 md:px-10 flex flex-col items-center gap-6 min-h-screen">
             <div className="flex flex-col self-start mb-2 lg:mb-4">
               <h1 className="text-xl lg:text-4xl font-extrabold mt-12 lg:mt-2">
                 Dashboard

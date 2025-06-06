@@ -5,27 +5,58 @@ import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { useCategory, Category } from "@/contexts/CategoryContext";
 
+const colorOptions = [
+  "#f87171",
+  "#fb923c",
+  "#facc15",
+  "#a3e635",
+  "#4ade80",
+  "#34d399",
+  "#2dd4bf",
+  "#38bdf8",
+  "#60a5fa",
+  "#818cf8",
+  "#a78bfa",
+  "#c084fc",
+  "#f472b6",
+];
+
+interface Props {
+  onSaveSuccess?: () => void;
+  editingCategory?: Category | null;
+}
+
 export default function CategoryManagerForm({
   onSaveSuccess,
-}: {
-  onSaveSuccess?: () => void;
-}) {
+  editingCategory,
+}: Props) {
   const { categories, saveUserCategories, isLoading } = useCategory();
+
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [currentCategory, setCurrentCategory] = useState<string>("");
   const [newSub, setNewSub] = useState<string>("");
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
     []
   );
+  const [selectedColor, setSelectedColor] = useState<string>(colorOptions[0]);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setSelectedCategories(categories);
   }, [categories]);
 
+  useEffect(() => {
+    if (editingCategory) {
+      setCurrentCategory(editingCategory.name);
+      setSelectedSubcategories(editingCategory.subcategories);
+      setSelectedColor(editingCategory.color || colorOptions[0]);
+    }
+  }, [editingCategory]);
+
   const handleAddSubcategory = () => {
-    if (!newSub.trim()) return;
-    if (!selectedSubcategories.includes(newSub.trim())) {
-      setSelectedSubcategories([...selectedSubcategories, newSub.trim()]);
+    const trimmed = newSub.trim();
+    if (trimmed && !selectedSubcategories.includes(trimmed)) {
+      setSelectedSubcategories([...selectedSubcategories, trimmed]);
       setNewSub("");
     }
   };
@@ -34,176 +65,149 @@ export default function CategoryManagerForm({
     setSelectedSubcategories((prev) => prev.filter((s) => s !== sub));
   };
 
-  const handleAddCategory = () => {
-    if (!currentCategory.trim()) return;
+  const handleAddCategory = async () => {
+    const trimmedName = currentCategory.trim();
+    if (!trimmedName) return;
 
-    const exists = selectedCategories.find(
-      (cat) => cat.name === currentCategory.trim()
+    const updatedCategories = [...selectedCategories];
+    const newCategory: Category = {
+      name: trimmedName,
+      subcategories: selectedSubcategories,
+      color: selectedColor,
+    };
+
+    const existingIndex = updatedCategories.findIndex(
+      (c) => c.name === trimmedName
     );
-
-    if (!exists) {
-      setSelectedCategories([
-        ...selectedCategories,
-        {
-          name: currentCategory.trim(),
-          subcategories: selectedSubcategories,
-        },
-      ]);
+    if (existingIndex >= 0) {
+      updatedCategories[existingIndex] = newCategory;
     } else {
-      setSelectedCategories(
-        selectedCategories.map((cat) =>
-          cat.name === currentCategory.trim()
-            ? { ...cat, subcategories: selectedSubcategories }
-            : cat
-        )
-      );
+      updatedCategories.push(newCategory);
     }
 
+    try {
+      setIsSaving(true);
+      await saveUserCategories(updatedCategories);
+      setSelectedCategories(updatedCategories);
+      resetForm();
+      onSaveSuccess?.();
+    } catch {
+      alert("Erro ao salvar categoria.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const resetForm = () => {
     setCurrentCategory("");
     setSelectedSubcategories([]);
-  };
-
-  const handleDeleteCategory = (name: string) => {
-    setSelectedCategories(
-      selectedCategories.filter((cat) => cat.name !== name)
-    );
-  };
-
-  const handleSave = async () => {
-    await saveUserCategories(selectedCategories);
-    alert("Categorias atualizadas com sucesso!");
-    onSaveSuccess?.();
+    setSelectedColor(colorOptions[0]);
   };
 
   if (isLoading) return <p>Carregando categorias...</p>;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-3xl mx-auto">
-      <div className="mb-6 relative">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Cadastro de Categorias de Despesa
-        </h2>
-        <p className="text-gray-600">
-          Digite o nome da categoria e suas subcategorias manualmente
-        </p>
-        {onSaveSuccess && (
-          <button
-            type="button"
-            onClick={onSaveSuccess}
-            className="absolute top-0 right-0 text-3xl text-gray-500 hover:text-black cursor-pointer"
-          >
-            &times;
-          </button>
-        )}
-      </div>
+    <div className="fixed inset-0 z-50 flex justify-center overflow-y-auto p-4">
+      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-2xl shadow-lg my-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">
+            {editingCategory ? "Editar Categoria" : "Nova Categoria"}
+          </h2>
+          {onSaveSuccess && (
+            <button
+              type="button"
+              onClick={onSaveSuccess}
+              className="text-gray-500 hover:text-black text-2xl leading-none"
+            >
+              ×
+            </button>
+          )}
+        </div>
 
-      <form className="space-y-6">
-        <Input
-          id="category"
-          label="Categoria"
-          value={currentCategory}
-          onChange={(e) => setCurrentCategory(e.target.value)}
-          placeholder="Digite o nome da categoria"
-          required
-        />
+        <form className="space-y-6">
+          <Input
+            id="category"
+            label="Nome da Categoria *"
+            value={currentCategory}
+            onChange={(e) => setCurrentCategory(e.target.value)}
+            placeholder="Digite o nome da categoria"
+            required
+            className="text-black"
+          />
 
-        <div className="bg-gray-50 p-4 rounded-md">
-          <h3 className="text-md font-medium text-gray-700 mb-3">
-            Subcategorias
-          </h3>
-          <div className="flex gap-2 mb-3">
-            <Input
-              id="subcategoria"
-              label="Nova subcategoria"
-              value={newSub}
-              onChange={(e) => setNewSub(e.target.value)}
-              placeholder="Digite uma subcategoria"
-            />
-            <Button type="button" onClick={handleAddSubcategory}>
-              Adicionar
-            </Button>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {selectedSubcategories.map((sub) => (
-              <div
-                key={sub}
-                className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1 text-sm"
-              >
-                {sub}
+          <div>
+            <h3 className="text-md font-medium text-gray-700 mb-2">Cor</h3>
+            <div className="grid grid-cols-7 gap-3">
+              {colorOptions.map((color) => (
                 <button
-                  onClick={() => handleRemoveSubcategory(sub)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  &times;
-                </button>
-              </div>
-            ))}
+                  key={color}
+                  type="button"
+                  className={`w-6 h-6 rounded-full border-2 transition-all ${
+                    selectedColor === color
+                      ? "border-black scale-110"
+                      : "border-transparent"
+                  }`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)}
+                />
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="flex justify-end">
-          <Button variant="secondary" onClick={handleAddCategory} type="button">
-            Adicionar categoria
-          </Button>
-        </div>
+          <div>
+            <h3 className="text-md font-medium text-gray-700 mb-2">
+              Subcategorias
+            </h3>
+            <div className="flex gap-2 mb-3">
+              <Input
+                id="subcategoria"
+                label="Nome da subcategoria"
+                value={newSub}
+                onChange={(e) => setNewSub(e.target.value)}
+                placeholder="Digite uma subcategoria"
+                className="text-black"
+              />
+              <Button type="button" onClick={handleAddSubcategory}>
+                Adicionar
+              </Button>
+            </div>
 
-        <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-          <h3 className="text-md font-medium text-gray-700 mb-3">
-            Categorias selecionadas
-          </h3>
-          {selectedCategories.length === 0 ? (
-            <p className="text-gray-500 text-sm">
-              Nenhuma categoria selecionada.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {selectedCategories.map((cat) => (
+            <div className="flex flex-wrap gap-2">
+              {selectedSubcategories.map((sub) => (
                 <div
-                  key={cat.name}
-                  className="flex items-center justify-between p-2 bg-white rounded border border-gray-200"
+                  key={sub}
+                  className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1 text-sm"
                 >
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-800">
-                      {cat.name}
-                    </span>
-                    {cat.subcategories.length > 0 && (
-                      <>
-                        <span className="mx-2 text-gray-400">•</span>
-                        <span className="text-sm text-gray-600">
-                          {cat.subcategories.join(", ")}
-                        </span>
-                      </>
-                    )}
-                  </div>
+                  {sub}
                   <button
-                    type="button"
-                    onClick={() => handleDeleteCategory(cat.name)}
+                    onClick={() => handleRemoveSubcategory(sub)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M6 2a1 1 0 00-.894.553L4.382 4H3a1 1 0 000 2h1v10a2 2 0 002 2h8a2 2 0 002-2V6h1a1 1 0 100-2h-1.382l-.724-1.447A1 1 0 0014 2H6zm2 5a1 1 0 012 0v6a1 1 0 11-2 0V7zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V7a1 1 0 00-1-1z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    &times;
                   </button>
                 </div>
               ))}
             </div>
-          )}
-        </div>
+          </div>
 
-        <Button type="button" variant="primary" fullWidth onClick={handleSave}>
-          Salvar categorias
-        </Button>
-      </form>
+          <div className="flex justify-end gap-4 pt-4">
+            <Button type="button" variant="outline" onClick={onSaveSuccess}>
+              Cancelar
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleAddCategory}
+              disabled={isSaving}
+            >
+              {isSaving
+                ? "Salvando..."
+                : editingCategory
+                ? "Atualizar"
+                : "Criar"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

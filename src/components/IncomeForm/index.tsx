@@ -9,8 +9,6 @@ import { useCategory } from "@/contexts/CategoryContext";
 import { Income } from "@/interfaces/Income";
 import { postIncomeToAPI, updateIncomeInAPI } from "@/services/incomeService";
 import { getUserIdFromToken } from "@/utils/auth";
-import { useDate } from "@/contexts/DateContext";
-import { MONTHS } from "@/utils/constants";
 
 interface IncomeFormProps {
   incomeToEdit?: Income | null;
@@ -24,13 +22,12 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
   onIncomeUpdated,
 }) => {
   const { addIncome, updateIncome } = useIncomes();
-  const { selectedYear, selectedMonth, setMonth } = useDate();
   const { incomeCategories } = useCategory();
 
   const [form, setForm] = useState({
     type: "",
     amount: "",
-    day: "",
+    date: "",
     note: "",
     source: "",
   });
@@ -40,26 +37,19 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
   useEffect(() => {
     if (incomeToEdit) {
       setIsEditing(true);
-      const date = new Date(incomeToEdit.date);
+      const isoDate = new Date(incomeToEdit.date).toISOString().split("T")[0];
       setForm({
         type: incomeToEdit.type || "",
         amount: incomeToEdit.amount.toString(),
-        day: date.getDate().toString(),
+        date: isoDate,
         note: incomeToEdit.note || "",
         source: incomeToEdit.source || "",
       });
-      setMonth(date.getMonth());
     } else {
       setIsEditing(false);
-      setForm({
-        type: "",
-        amount: "",
-        day: "",
-        note: "",
-        source: "",
-      });
+      setForm({ type: "", amount: "", date: "", note: "", source: "" });
     }
-  }, [incomeToEdit, setMonth]);
+  }, [incomeToEdit]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -73,7 +63,7 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    if (!form.type || !form.amount || !form.day) {
+    if (!form.type || !form.amount || !form.date) {
       alert("Preencha os campos obrigatórios.");
       setIsSubmitting(false);
       return;
@@ -81,16 +71,13 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
 
     try {
       const userId = getUserIdFromToken();
-      const day = parseInt(form.day);
-      const date = new Date(selectedYear, selectedMonth, day).toISOString();
 
       const payload = {
         type: form.type,
         amount: parseFloat(form.amount),
         note: form.note,
         source: form.source,
-        day,
-        date,
+        date: form.date,
         userId,
       };
 
@@ -104,7 +91,7 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
         alert("Receita adicionada com sucesso!");
       }
 
-      setForm({ type: "", amount: "", day: "", note: "", source: "" });
+      setForm({ type: "", amount: "", date: "", note: "", source: "" });
       setIsEditing(false);
       onIncomeUpdated?.();
     } catch (error) {
@@ -121,111 +108,94 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
   }));
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto">
-      <div className="mb-6 relative">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          {isEditing ? "Editar Receita" : "Cadastro de Receita"}
-        </h2>
-        <p className="text-gray-600">Preencha os dados da sua receita</p>
-        {onCancelEdit && (
-          <button
-            type="button"
-            onClick={onCancelEdit}
-            className="absolute top-0 right-0 text-3xl text-gray-500 hover:text-black cursor-pointer"
-          >
-            &times;
-          </button>
-        )}
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Select
-            id="month"
-            label="Mês"
-            value={selectedMonth.toString()}
-            onChange={(e) => setMonth(Number(e.target.value))}
-            options={MONTHS.map((m, i) => ({ value: i.toString(), label: m }))}
-            required
-          />
-          <Input
-            id="day"
-            name="day"
-            label="Dia do mês"
-            type="number"
-            required
-            placeholder="1-31"
-            value={form.day}
-            onChange={handleChange}
-          />
+    <div className="fixed inset-0 z-50 bg-transparent bg-opacity-30 flex justify-center overflow-y-auto p-4">
+      <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-3xl shadow-lg my-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">
+            {isEditing ? "Editar Receita" : "Cadastro de Receita"}
+          </h2>
+          {onCancelEdit && (
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              className="text-gray-500 hover:text-black text-2xl leading-none"
+            >
+              &times;
+            </button>
+          )}
         </div>
 
-        <Select
-          id="type"
-          label="Tipo"
-          value={form.type}
-          onChange={handleChange}
-          options={categoryOptions}
-          required
-        />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Select
+              id="type"
+              label="Tipo"
+              value={form.type}
+              onChange={handleChange}
+              options={categoryOptions}
+              required
+            />
+            <Input
+              id="amount"
+              name="amount"
+              label="Valor (R$)"
+              type="number"
+              min="0.01"
+              placeholder="R$ 0,00"
+              required
+              value={form.amount}
+              onChange={handleChange}
+            />
 
-        <Input
-          id="amount"
-          name="amount"
-          label="Valor (R$)"
-          type="number"
-          min="0.01"
-          placeholder="R$ 0,00"
-          required
-          value={form.amount}
-          onChange={handleChange}
-        />
+            <Input
+              id="date"
+              name="date"
+              label="Data"
+              type="date"
+              required
+              value={form.date}
+              onChange={handleChange}
+            />
+            <Input
+              id="source"
+              name="source"
+              label="Fonte"
+              placeholder="Fonte (opcional)"
+              value={form.source}
+              onChange={handleChange}
+            />
+          </div>
 
-        <Input
-          id="note"
-          name="note"
-          label="Observação"
-          placeholder="Observação (opcional)"
-          value={form.note}
-          onChange={handleChange}
-        />
+          <div className="mt-2">
+            <Input
+              id="note"
+              name="note"
+              label="Observação"
+              placeholder="Observação (opcional)"
+              value={form.note}
+              onChange={handleChange}
+            />
+          </div>
 
-        <Input
-          id="source"
-          name="source"
-          label="Fonte"
-          placeholder="Fonte (opcional)"
-          value={form.source}
-          onChange={handleChange}
-        />
-
-        <div className="pt-4 flex flex-col md:flex-row gap-4">
-          <Button
-            type="submit"
-            variant="primary"
-            fullWidth
-            disabled={isSubmitting}
-          >
-            {isSubmitting
-              ? "Salvando..."
-              : isEditing
-              ? "Atualizar Receita"
-              : "Salvar Receita"}
-          </Button>
-
-          {isEditing && (
+          <div className="flex justify-end gap-4 pt-4">
             <Button
               type="button"
               variant="outline"
-              fullWidth
               onClick={onCancelEdit}
               disabled={isSubmitting}
             >
-              Cancelar edição
+              Cancelar
             </Button>
-          )}
-        </div>
-      </form>
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+              {isSubmitting
+                ? "Salvando..."
+                : isEditing
+                ? "Atualizar Receita"
+                : "Salvar Receita"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

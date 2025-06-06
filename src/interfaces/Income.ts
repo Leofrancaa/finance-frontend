@@ -5,5 +5,4 @@ export interface Income {
     date: string;
     note?: string;
     source?: string;
-    day: number;
 }
