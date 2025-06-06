@@ -196,7 +196,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex justify-center overflow-y-auto p-4">
+    <div className="fixed inset-0 z-50 bg-opacity-30 flex justify-center overflow-y-auto p-4">
       <div className="bg-white rounded-xl p-6 sm:p-8 w-full max-w-3xl shadow-lg my-auto">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Nova Despesa</h2>
@@ -223,13 +223,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               id="type"
               label="Categoria *"
               required
-              options={categories.map((cat) => ({
-                value: cat.name,
-                label: cat.name,
-              }))}
+              options={categories
+                .filter((cat) => !cat.isIncome) // <-- só despesas
+                .map((cat) => ({
+                  value: cat.name,
+                  label: cat.name,
+                }))}
               value={formData.type}
               onChange={handleChange}
             />
+
             <Select
               id="subtype"
               label="Subcategoria"

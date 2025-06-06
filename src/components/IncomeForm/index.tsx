@@ -22,7 +22,7 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
   onIncomeUpdated,
 }) => {
   const { addIncome, updateIncome } = useIncomes();
-  const { incomeCategories } = useCategory();
+  const { categories } = useCategory(); // agora usando o array completo de categorias
 
   const [form, setForm] = useState({
     type: "",
@@ -102,10 +102,13 @@ const IncomeForm: React.FC<IncomeFormProps> = ({
     }
   };
 
-  const categoryOptions = incomeCategories.map((name) => ({
-    value: name,
-    label: name,
-  }));
+  // ✅ Apenas categorias marcadas como isIncome
+  const categoryOptions = categories
+    .filter((cat) => cat.isIncome)
+    .map((cat) => ({
+      value: cat.name,
+      label: cat.name,
+    }));
 
   return (
     <div className="fixed inset-0 z-50 bg-transparent bg-opacity-30 flex justify-center overflow-y-auto p-4">

@@ -40,6 +40,7 @@ export default function CategoryManagerForm({
   );
   const [selectedColor, setSelectedColor] = useState<string>(colorOptions[0]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isIncomeCategory, setIsIncomeCategory] = useState<boolean>(false);
 
   useEffect(() => {
     setSelectedCategories(categories);
@@ -69,26 +70,29 @@ export default function CategoryManagerForm({
     const trimmedName = currentCategory.trim();
     if (!trimmedName) return;
 
-    const updatedCategories = [...selectedCategories];
-    const newCategory: Category = {
-      name: trimmedName,
-      subcategories: selectedSubcategories,
-      color: selectedColor,
-    };
-
-    const existingIndex = updatedCategories.findIndex(
-      (c) => c.name === trimmedName
-    );
-    if (existingIndex >= 0) {
-      updatedCategories[existingIndex] = newCategory;
-    } else {
-      updatedCategories.push(newCategory);
-    }
+    setIsSaving(true);
 
     try {
-      setIsSaving(true);
+      const updatedCategories = [...selectedCategories];
+      const newCategory: Category = {
+        name: trimmedName,
+        subcategories: isIncomeCategory ? [] : selectedSubcategories,
+        color: selectedColor,
+        isIncome: isIncomeCategory,
+      };
+
+      const existingIndex = updatedCategories.findIndex(
+        (c) => c.name === trimmedName
+      );
+      if (existingIndex >= 0) {
+        updatedCategories[existingIndex] = newCategory;
+      } else {
+        updatedCategories.push(newCategory);
+      }
+
       await saveUserCategories(updatedCategories);
       setSelectedCategories(updatedCategories);
+
       resetForm();
       onSaveSuccess?.();
     } catch {
@@ -102,6 +106,7 @@ export default function CategoryManagerForm({
     setCurrentCategory("");
     setSelectedSubcategories([]);
     setSelectedColor(colorOptions[0]);
+    setIsIncomeCategory(false);
   };
 
   if (isLoading) return <p>Carregando categorias...</p>;
@@ -135,6 +140,58 @@ export default function CategoryManagerForm({
             className="text-black"
           />
 
+          <div className="flex items-center gap-4">
+            <label className="text-gray-700 font-medium">Tipo:</label>
+            <select
+              className="border border-gray-300 rounded px-3 py-2 text-gray-700"
+              value={isIncomeCategory ? "receita" : "despesa"}
+              onChange={(e) =>
+                setIsIncomeCategory(e.target.value === "receita")
+              }
+            >
+              <option value="despesa">Despesa</option>
+              <option value="receita">Receita</option>
+            </select>
+          </div>
+
+          {!isIncomeCategory && (
+            <div>
+              <h3 className="text-md font-medium text-gray-700 mb-2">
+                Subcategorias
+              </h3>
+              <div className="flex gap-2 mb-3">
+                <Input
+                  id="subcategoria"
+                  label="Nome da subcategoria"
+                  value={newSub}
+                  onChange={(e) => setNewSub(e.target.value)}
+                  placeholder="Digite uma subcategoria"
+                  className="text-black"
+                />
+                <Button type="button" onClick={handleAddSubcategory}>
+                  Adicionar
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {selectedSubcategories.map((sub) => (
+                  <div
+                    key={sub}
+                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1 text-sm"
+                  >
+                    {sub}
+                    <button
+                      onClick={() => handleRemoveSubcategory(sub)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
             <h3 className="text-md font-medium text-gray-700 mb-2">Cor</h3>
             <div className="grid grid-cols-7 gap-3">
@@ -150,42 +207,6 @@ export default function CategoryManagerForm({
                   style={{ backgroundColor: color }}
                   onClick={() => setSelectedColor(color)}
                 />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-md font-medium text-gray-700 mb-2">
-              Subcategorias
-            </h3>
-            <div className="flex gap-2 mb-3">
-              <Input
-                id="subcategoria"
-                label="Nome da subcategoria"
-                value={newSub}
-                onChange={(e) => setNewSub(e.target.value)}
-                placeholder="Digite uma subcategoria"
-                className="text-black"
-              />
-              <Button type="button" onClick={handleAddSubcategory}>
-                Adicionar
-              </Button>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {selectedSubcategories.map((sub) => (
-                <div
-                  key={sub}
-                  className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full flex items-center gap-1 text-sm"
-                >
-                  {sub}
-                  <button
-                    onClick={() => handleRemoveSubcategory(sub)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    &times;
-                  </button>
-                </div>
               ))}
             </div>
           </div>

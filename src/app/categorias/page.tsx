@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import FancyButton from "@/components/ClickButton";
 import { Modal } from "@/components/Modal";
 import CategoryManagerForm from "@/components/ExpenseCategoryForm";
 import { CategoryProvider } from "../despesas/importsDespesas";
@@ -11,6 +10,7 @@ import CategoryCard from "@/components/CategoryCard";
 import { Category } from "../../contexts/CategoryContext";
 import { deleteCategoryAPI } from "@/services/categoryService";
 import { getUserIdFromToken } from "@/utils/auth";
+import { Plus } from "lucide-react";
 
 export default function CategoriaPage() {
   const [showCategoryModal, setShowCategoryModal] = useState(false);
@@ -73,19 +73,27 @@ function CategoriaContent({
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 px-4 py-8 flex flex-col items-center gap-6">
-      <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800">
-        Categorias de Despesas
-      </h1>
+    <div className="w-full min-h-screen bg-gray-50 px-6 py-8 flex flex-col items-center gap-6 text-black">
+      <div className="flex flex-col lg:flex-row w-full justify-between items-center">
+        <div className="flex flex-col self-start mb-2">
+          <h1 className="text-xl lg:text-4xl font-extrabold mt-12 lg:mt-2">
+            Categorias
+          </h1>
+          <span className="text-sm text-gray-600">
+            Organize suas finanças por categorias
+          </span>
+        </div>
 
-      <FancyButton onClick={() => setShowCategoryModal(true)}>
-        Gerenciar Categorias
-      </FancyButton>
-      <FancyButton onClick={() => setShowIncomeCategoryModal(true)}>
-        Categorias de Receita
-      </FancyButton>
+        <button
+          className="bg-blue-600 w-full lg:w-60 px-4 py-3 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          onClick={() => setShowCategoryModal(true)}
+        >
+          <Plus></Plus>
+          Gerenciar Categorias
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full max-w-6xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full">
         {categories.map((cat: Category) => (
           <CategoryCard
             key={cat.name}

@@ -52,7 +52,10 @@ export const IncomeDashboard: React.FC<IncomeDashboardProps> = ({ onEdit }) => {
 
                 <div className="flex gap-2">
                   <EditButton onClick={() => onEdit(income)} />
-                  <DeleteButton onClick={() => deleteIncome(income._id)} />
+                  <DeleteButton
+                    onClick={() => deleteIncome(income._id)}
+                    width={6}
+                  />
                 </div>
               </div>
 

@@ -6,7 +6,7 @@ import {
   saveCategories,
   updateCategoryAPI,
   deleteCategoryAPI,
-} from "@/services/categoryService"; // ✅ inclui PUT e DELETE
+} from "@/services/categoryService";
 import {
   getIncomeCategories,
   saveIncomeCategories,
@@ -17,15 +17,23 @@ export interface Category {
   name: string;
   subcategories: string[];
   color: string;
+  isIncome?: boolean;
 }
 
 interface CategoryContextType {
   categories: Category[];
   setCategories: (categories: Category[]) => void;
   saveUserCategories: (categories: Category[]) => Promise<void>;
-  updateCategory: (updatedCategory: Category) => Promise<void>;
+  updateCategory: (
+    originalName: string,
+    updatedCategory: Category
+  ) => Promise<void>;
   removeCategory: (name: string) => Promise<void>;
   isLoading: boolean;
+
+  editingCategory: Category | null;
+  startEditingCategory: (category: Category) => void;
+  clearEditingCategory: () => void;
 
   incomeCategories: string[];
   setIncomeCategories: (categories: string[]) => void;
@@ -47,6 +55,8 @@ export const CategoryProvider = ({
 
   const [incomeCategories, setIncomeCategories] = useState<string[]>([]);
   const [isIncomeLoading, setIsIncomeLoading] = useState(true);
+
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -80,15 +90,16 @@ export const CategoryProvider = ({
     setCategories(updatedCategories);
   };
 
-  const updateCategory = async (updatedCategory: Category) => {
+  const updateCategory = async (
+    originalName: string,
+    updatedCategory: Category
+  ) => {
     const userId = getUserIdFromToken();
     if (!userId) return;
 
-    await updateCategoryAPI(userId, updatedCategory);
+    await updateCategoryAPI(userId, originalName, updatedCategory);
     setCategories((prev) =>
-      prev.map((cat) =>
-        cat.name === updatedCategory.name ? updatedCategory : cat
-      )
+      prev.map((cat) => (cat.name === originalName ? updatedCategory : cat))
     );
   };
 
@@ -110,15 +121,26 @@ export const CategoryProvider = ({
     setIncomeCategories(updatedIncomeCategories);
   };
 
+  const startEditingCategory = (category: Category) => {
+    setEditingCategory(category);
+  };
+
+  const clearEditingCategory = () => {
+    setEditingCategory(null);
+  };
+
   return (
     <CategoryContext.Provider
       value={{
         categories,
         setCategories,
         saveUserCategories,
-        updateCategory, // ✅ novo
-        removeCategory, // ✅ novo
+        updateCategory,
+        removeCategory,
         isLoading,
+        editingCategory,
+        startEditingCategory,
+        clearEditingCategory,
         incomeCategories,
         setIncomeCategories,
         saveUserIncomeCategories,

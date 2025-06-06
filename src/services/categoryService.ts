@@ -31,7 +31,7 @@ export async function saveCategories(userId: string, categories: Category[]): Pr
     }
 }
 
-// 🛠 Atualiza uma única categoria
+// 🛠 Atualiza uma única categoria pelo nome
 export async function updateCategoryAPI(
     userId: string,
     categoryName: string,

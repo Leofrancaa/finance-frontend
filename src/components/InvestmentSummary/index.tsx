@@ -53,7 +53,10 @@ export const InvestmentSummary: React.FC<Props> = ({
                 <h3 className="text-lg font-bold text-gray-900">{inv.name}</h3>
                 <div className="flex gap-2">
                   <EditButton onClick={() => onEdit(inv)} />
-                  <DeleteButton onClick={() => inv._id && onDelete(inv._id)} />
+                  <DeleteButton
+                    onClick={() => inv._id && onDelete(inv._id)}
+                    width={6}
+                  />
                 </div>
               </div>
 

@@ -127,7 +127,7 @@ export const ExpenseSummary: React.FC<Props> = ({
                   </div>
                   <div className="flex gap-2">
                     <EditButton onClick={() => onEdit(exp)} />
-                    <DeleteButton onClick={() => onDelete(exp._id)} />
+                    <DeleteButton onClick={() => onDelete(exp._id)} width={6} />
                   </div>
                 </div>
 
