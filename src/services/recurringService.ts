@@ -1,24 +1,24 @@
 import { RecurringExpense } from "@/interfaces/RecurringExpense";
 import { Expense } from "@/interfaces/Expense";
 import { AddExpenseData } from "@/interfaces/Expense";
-import { API_BASE_URL } from "@/utils/api"; // 🔥 importando a URL da API
+import { API_BASE_URL } from "@/utils/api";
 import { fetchAuth } from "./apiService";
 
+// 🧠 Cria payload para despesa recorrente
 export function buildRecurringPayload(
     data: AddExpenseData,
     year: number,
     month: number
 ): RecurringExpense {
-    const startDate = new Date(year, month, Number(data.day))
-        .toISOString()
-        .slice(0, 10);
+    const day = new Date(data.date).getDate();
+    const startDate = new Date(year, month, day).toISOString().slice(0, 10);
 
     return {
         type: data.type,
         amount: Number(data.amount),
         note: data.note,
         paymentMethod: data.paymentMethod || "default",
-        day: Number(data.day),
+        day,
         startDate,
         fixed: true,
         _id: "", // será preenchido pelo backend
@@ -27,6 +27,7 @@ export function buildRecurringPayload(
     };
 }
 
+// 🔁 Converte uma despesa recorrente em despesa normal com data
 export function recurringToExpense(
     recurring: RecurringExpense,
     year: number,
@@ -39,7 +40,7 @@ export function recurringToExpense(
     };
 }
 
-// 🆕 AQUI: postRecurringExpense
+// 📤 Salva despesa recorrente na API
 export async function postRecurringExpense(
     recurring: Omit<RecurringExpense, "id">
 ): Promise<RecurringExpense> {
@@ -48,11 +49,8 @@ export async function postRecurringExpense(
         body: JSON.stringify(recurring),
     });
 
-    // Normalizar a resposta
-    const fixedResponse = {
+    return {
         ...response,
-        id: response.id || response._id, // usa id se existir, senão usa _id
+        id: response.id || response._id,
     };
-
-    return fixedResponse;
 }
