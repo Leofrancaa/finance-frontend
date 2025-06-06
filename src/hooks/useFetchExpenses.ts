@@ -11,6 +11,11 @@ export const useFetchExpenses = () => {
     useEffect(() => {
         getExpenses()
             .then((data: ExpenseFromAPI[]) => {
+                if (!data || data.length === 0) {
+                    setExpenses([]); // Nenhuma despesa, mas sem erro
+                    return;
+                }
+
                 const mapped: Expense[] = data.map((e) => ({
                     _id: e._id || "",
                     type: e.type,
@@ -21,14 +26,18 @@ export const useFetchExpenses = () => {
                     note: e.note,
                     fixed: e.fixed,
                     date: e.date,
-                    subcategory: e.subcategory, 
+                    subcategory: e.subcategory,
                 }));
 
                 setExpenses(mapped);
             })
             .catch((err) => {
-                console.error(err);
-                alert("Erro ao carregar despesas");
+                console.error("Erro ao carregar despesas:", err);
+
+                // Só mostra alerta se for erro de rede ou servidor (não erro "esperado" como 404 sem conteúdo)
+                if (!(err instanceof Response && err.status === 404)) {
+                    alert("Erro ao carregar despesas");
+                }
             });
     }, [setExpenses]);
 };

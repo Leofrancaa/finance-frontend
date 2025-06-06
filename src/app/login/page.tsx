@@ -31,7 +31,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-blue-50 flex items-center justify-center px-4 py-8">
-      <div className="bg-white w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-[24vw] rounded-lg shadow p-6 sm:p-8">
+      <div className="bg-white w-full max-w-sm sm:max-w-md md:max-w-lg 3xl-w-[24vw] rounded-lg shadow p-6 sm:p-8">
         <h1 className="text-4xl font-extrabold text-center text-blue-600 mb-6 uppercase">
           nexus
         </h1>
